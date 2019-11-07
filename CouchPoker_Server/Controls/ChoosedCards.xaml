@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="CouchPoker_Server.Controls.ChoosedCards"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CouchPoker_Server.Controls"
+             mc:Ignorable="d" 
+             Width="auto" Height="auto">
+    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
+        <Image Name="Flop_1" Stretch="Uniform" Source="G:\Kod\CouchPoker_Server\CouchPoker_Server\bin\Debug\Cards\2C.jpg"/>
+        <Image Name="Flop_2" Stretch="Uniform" Source="G:\Kod\CouchPoker_Server\CouchPoker_Server\bin\Debug\Cards\4S.jpg"/>
+        <Image Name="Flop_3" Stretch="Uniform" Source="G:\Kod\CouchPoker_Server\CouchPoker_Server\bin\Debug\Cards\7H.jpg"/>
+        <Image Name="Turn"   Stretch="Uniform" Source="G:\Kod\CouchPoker_Server\CouchPoker_Server\bin\Debug\Cards\QS.jpg"/>
+        <Image Name="River"  Stretch="Uniform" Source="G:\Kod\CouchPoker_Server\CouchPoker_Server\bin\Debug\Cards\2H.jpg"/>
+    </StackPanel>
+</UserControl>

@@ -16,7 +16,7 @@
                HorizontalAlignment="Stretch" 
                VerticalAlignment="Top" Foreground="White"
                Margin="30,14,0,0" Padding="0,0,0,0" FontSize="24"/>
-                <Label Name="Pot" Content="500000000000" HorizontalContentAlignment="Right"
+                <Label Name="Pot" Content="0" HorizontalContentAlignment="Right"
                HorizontalAlignment="Stretch" 
                VerticalAlignment="Top" Foreground="White"
                Margin="0,14,0,0" Padding="0,0,5,0" FontSize="24"/>

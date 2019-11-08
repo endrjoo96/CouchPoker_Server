@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CouchPoker_Server.Player;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -16,6 +17,16 @@ namespace CouchPoker_Server
 
     class UserHandler
     {
+        // dodać indywidualny worker
+        // podpiac z niego event o przychodzacym polaczeniu
+        private UserData _userData;
+        public UserData userData { get { return _userData; }
+            set {
+                Username = value.username;
+                TotalBallance = value.ballance;
+                _userData = value;
+            }
+        }
 
         private Controls.User user = null;
         private STATUS _status = STATUS.NEW_GAME;
@@ -24,15 +35,25 @@ namespace CouchPoker_Server
         public string ID { get; set; }
 
         public string Username {
-            get { return user.Username.Content.ToString(); }
+            get { return _userData.username; }
             set { if (user.Username.Content.ToString() == "")
+                {
                     user.Username.Content = value;
-                user.Visibility = System.Windows.Visibility.Visible;
+                    user.Visibility = System.Windows.Visibility.Visible;
+                }
+            else if (value == "")
+                {
+                    user.Username.Content = value;
+                    user.Visibility = System.Windows.Visibility.Hidden;
+                }
             }
         }
         public int TotalBallance {
-            get { return Int32.Parse(user.Total.Content.ToString()); }
-            set { user.Total.Content = value.ToString(); }
+            get { return _userData.ballance; }
+            set {
+                user.Total.Content = value.ToString();
+                _userData.ballance = value;
+            }
         }
         public int CurrentBet {
             get { return Int32.Parse(user.Current.Content.ToString()); }
@@ -63,11 +84,12 @@ namespace CouchPoker_Server
                 _status = value;
             }
         }
+        public string UID { get; set; }
 
-        public UserHandler(Controls.User uiControl, string username)
+        public UserHandler(Controls.User uiControl, UserData data)
         {
             user = uiControl;
-            Username = username;
+            userData = data;
             if (Username == "") uiControl.Visibility = System.Windows.Visibility.Hidden;
         }
 

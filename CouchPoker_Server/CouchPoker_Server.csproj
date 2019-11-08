@@ -54,8 +54,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Management\JoiningManagement.cs" />
     <Compile Include="Networking\Receiver.cs" />
-    <Compile Include="UserHandler.cs" />
+    <Compile Include="Networking\Worker.cs" />
+    <Compile Include="Player\UserData.cs" />
+    <Compile Include="Player\UserHandler.cs" />
     <Page Include="Controls\ChoosedCards.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

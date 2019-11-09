@@ -30,7 +30,9 @@ namespace CouchPoker_Server
 
         private Controls.User user = null;
         private STATUS _status = STATUS.NEW_GAME;
+        private bool _isActive = false;
 
+        public bool IsActive { get { return _isActive; } }
         public TcpClient tcpClient { get; set; }
         public string ID { get; set; }
 
@@ -40,11 +42,13 @@ namespace CouchPoker_Server
                 {
                     user.Username.Content = value;
                     user.Visibility = System.Windows.Visibility.Visible;
+                    _isActive = true;
                 }
             else if (value == "")
                 {
                     user.Username.Content = value;
                     user.Visibility = System.Windows.Visibility.Hidden;
+                    _isActive = false;
                 }
             }
         }
@@ -68,6 +72,8 @@ namespace CouchPoker_Server
                         user.Action.Content = value;
                         break;
                     }
+                    case STATUS.BET:
+                    case STATUS.CHECK:
                     case STATUS.NO_ACTION:
                     case STATUS.NEW_GAME:
                     {

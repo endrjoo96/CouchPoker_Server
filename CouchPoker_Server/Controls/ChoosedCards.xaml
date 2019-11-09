@@ -7,10 +7,10 @@
              mc:Ignorable="d" 
              Width="auto" Height="auto">
     <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
-        <Image Name="Flop_1" Stretch="Uniform" Source="G:\Kod\CouchPoker_Server\CouchPoker_Server\bin\Debug\Cards\2C.jpg"/>
-        <Image Name="Flop_2" Stretch="Uniform" Source="G:\Kod\CouchPoker_Server\CouchPoker_Server\bin\Debug\Cards\4S.jpg"/>
-        <Image Name="Flop_3" Stretch="Uniform" Source="G:\Kod\CouchPoker_Server\CouchPoker_Server\bin\Debug\Cards\7H.jpg"/>
-        <Image Name="Turn"   Stretch="Uniform" Source="G:\Kod\CouchPoker_Server\CouchPoker_Server\bin\Debug\Cards\QS.jpg"/>
-        <Image Name="River"  Stretch="Uniform" Source="G:\Kod\CouchPoker_Server\CouchPoker_Server\bin\Debug\Cards\2H.jpg"/>
+        <Image Name="Flop_1" Stretch="Uniform" Source="/CouchPoker_Server;component/Resources/Cards/Gray_back.jpg"/>
+        <Image Name="Flop_2" Stretch="Uniform" Source="/CouchPoker_Server;component/Resources/Cards/Gray_back.jpg"/>
+        <Image Name="Flop_3" Stretch="Uniform" Source="/CouchPoker_Server;component/Resources/Cards/Gray_back.jpg"/>
+        <Image Name="Turn"   Stretch="Uniform" Source="/CouchPoker_Server;component/Resources/Cards/Gray_back.jpg"/>
+        <Image Name="River"  Stretch="Uniform" Source="/CouchPoker_Server;component/Resources/Cards/Gray_back.jpg"/>
     </StackPanel>
 </UserControl>

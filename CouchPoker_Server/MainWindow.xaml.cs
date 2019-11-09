@@ -25,12 +25,14 @@ namespace CouchPoker_Server
     {
         List<UserHandler> users;
         List<UserData> usersHistory;
+        List<Card> usedCards;
         private int currentPlayer = 0;
         private bool warunek = true;
 
         public MainWindow()
         {
             InitializeComponent();
+            usedCards = new List<Card>();
             usersHistory = new List<UserData>()
             {
                 new UserData(){ ballance=0, uID="", username="" },
@@ -51,6 +53,19 @@ namespace CouchPoker_Server
             };
             users[0].Status = STATUS.MY_TURN;
 
+            usedCards.Add(GetRandomCardSafely());
+            usedCards.Add(GetRandomCardSafely());
+            usedCards.Add(GetRandomCardSafely());
+            usedCards.Add(GetRandomCardSafely());
+            usedCards.Add(GetRandomCardSafely());
+
+            Card[] cards = new Card[] { usedCards[0], usedCards[1], usedCards[2] };
+
+            SetCards(GAME_MOMENT.FLOP, cards);
+            SetCards(GAME_MOMENT.TURN, new Card[] { usedCards[3] });
+            SetCards(GAME_MOMENT.RIVER, new Card[] { usedCards[4] });
+
+
             Worker.Run();
             JoiningManagement.Run(users, usersHistory);
 
@@ -60,5 +75,47 @@ namespace CouchPoker_Server
 
             }*/
         }
+
+        public Card GetRandomCardSafely()
+        {
+            Card c = CARD.GetRandomCard();
+            while (usedCards.Find(x => x.Path == c.Path) != null)
+            {
+                c = CARD.GetRandomCard();
+            }
+            return c;
+        }
+
+        private void SetCards(GAME_MOMENT moment, Card[] cards)
+        {
+            switch (moment)
+            {
+                case GAME_MOMENT.FLOP:
+                {
+                        choosedCards.Flop_1.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative));
+                        choosedCards.Flop_2.Source = new BitmapImage(new Uri(cards[1].Path, UriKind.Relative));
+                        choosedCards.Flop_3.Source = new BitmapImage(new Uri(cards[2].Path, UriKind.Relative));
+                        break;
+                }
+                case GAME_MOMENT.TURN:
+                {
+
+                        choosedCards.Turn.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative));
+                        break;
+                }
+                case GAME_MOMENT.RIVER:
+                {
+
+                        choosedCards.River.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative));
+                        break;
+                }
+            }
+
+        }
+    }
+
+    public enum GAME_MOMENT
+    {
+        PREFLOP, FLOP, TURN, RIVER
     }
 }

@@ -120,5 +120,71 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\background.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\table.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Cards\10C.jpg" />
+    <Resource Include="Resources\Cards\10D.jpg" />
+    <Resource Include="Resources\Cards\10H.jpg" />
+    <Resource Include="Resources\Cards\10S.jpg" />
+    <Resource Include="Resources\Cards\2C.jpg" />
+    <Resource Include="Resources\Cards\2D.jpg" />
+    <Resource Include="Resources\Cards\2H.jpg" />
+    <Resource Include="Resources\Cards\2S.jpg" />
+    <Resource Include="Resources\Cards\3C.jpg" />
+    <Resource Include="Resources\Cards\3D.jpg" />
+    <Resource Include="Resources\Cards\3H.jpg" />
+    <Resource Include="Resources\Cards\3S.jpg" />
+    <Resource Include="Resources\Cards\4C.jpg" />
+    <Resource Include="Resources\Cards\4D.jpg" />
+    <Resource Include="Resources\Cards\4H.jpg" />
+    <Resource Include="Resources\Cards\4S.jpg" />
+    <Resource Include="Resources\Cards\5C.jpg" />
+    <Resource Include="Resources\Cards\5D.jpg" />
+    <Resource Include="Resources\Cards\5H.jpg" />
+    <Resource Include="Resources\Cards\5S.jpg" />
+    <Resource Include="Resources\Cards\6C.jpg" />
+    <Resource Include="Resources\Cards\6D.jpg" />
+    <Resource Include="Resources\Cards\6H.jpg" />
+    <Resource Include="Resources\Cards\6S.jpg" />
+    <Resource Include="Resources\Cards\7C.jpg" />
+    <Resource Include="Resources\Cards\7D.jpg" />
+    <Resource Include="Resources\Cards\7H.jpg" />
+    <Resource Include="Resources\Cards\7S.jpg" />
+    <Resource Include="Resources\Cards\8C.jpg" />
+    <Resource Include="Resources\Cards\8D.jpg" />
+    <Resource Include="Resources\Cards\8H.jpg" />
+    <Resource Include="Resources\Cards\8S.jpg" />
+    <Resource Include="Resources\Cards\9C.jpg" />
+    <Resource Include="Resources\Cards\9D.jpg" />
+    <Resource Include="Resources\Cards\9H.jpg" />
+    <Resource Include="Resources\Cards\9S.jpg" />
+    <Resource Include="Resources\Cards\AC.jpg" />
+    <Resource Include="Resources\Cards\AD.jpg" />
+    <Resource Include="Resources\Cards\AH.jpg" />
+    <Resource Include="Resources\Cards\AS.jpg" />
+    <Resource Include="Resources\Cards\blue_back.jpg" />
+    <Resource Include="Resources\Cards\Gray_back.jpg" />
+    <Resource Include="Resources\Cards\Green_back.jpg" />
+    <Resource Include="Resources\Cards\JC.jpg" />
+    <Resource Include="Resources\Cards\JD.jpg" />
+    <Resource Include="Resources\Cards\JH.jpg" />
+    <Resource Include="Resources\Cards\JS.jpg" />
+    <Resource Include="Resources\Cards\KC.jpg" />
+    <Resource Include="Resources\Cards\KD.jpg" />
+    <Resource Include="Resources\Cards\KH.jpg" />
+    <Resource Include="Resources\Cards\KS.jpg" />
+    <Resource Include="Resources\Cards\purple_back.jpg" />
+    <Resource Include="Resources\Cards\QC.jpg" />
+    <Resource Include="Resources\Cards\QD.jpg" />
+    <Resource Include="Resources\Cards\QH.jpg" />
+    <Resource Include="Resources\Cards\QS.jpg" />
+    <Resource Include="Resources\Cards\Red_back.jpg" />
+    <Resource Include="Resources\Cards\Yellow_back.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

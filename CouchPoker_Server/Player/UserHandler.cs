@@ -1,4 +1,5 @@
-﻿using CouchPoker_Server.Player;
+﻿using CouchPoker_Server.Networking;
+using CouchPoker_Server.Player;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,30 +11,48 @@ using System.Windows.Media;
 
 namespace CouchPoker_Server
 {
-    enum STATUS
+    public enum STATUS
     {
         CHECK, BET, FOLD, NO_ACTION, NEW_GAME, MY_TURN
     }
 
-    class UserHandler
+    public class UserHandler
     {
         // dodać indywidualny worker
         // podpiac z niego event o przychodzacym polaczeniu
+
+        public delegate void DataReceivedDelegate(DataReceivedEventArgs args);
+        public event DataReceivedDelegate DataReceived;
+
         private UserData _userData;
         public UserData userData { get { return _userData; }
             set {
+                _userData = value;
                 Username = value.username;
                 TotalBallance = value.ballance;
-                _userData = value;
             }
         }
 
         private Controls.User user = null;
+        private Receiver receiver;
         private STATUS _status = STATUS.NEW_GAME;
-        private bool _isActive = false;
+        private TcpClient _tcpClient = null;
 
-        public bool IsActive { get { return _isActive; } }
-        public TcpClient tcpClient { get; set; }
+        public bool IsActive { 
+            get {
+                if (_tcpClient == null || Username == "") return false;
+                else return true;
+            } }
+        public TcpClient tcpClient { 
+            get { return _tcpClient; } 
+            set { _tcpClient = value;
+                if (_tcpClient != null)
+                {
+                    receiver.BeginReceive(_tcpClient);
+                }
+                else receiver.StopReceiving();
+
+            } }
         public string ID { get; set; }
 
         public string Username {
@@ -42,13 +61,11 @@ namespace CouchPoker_Server
                 {
                     user.Username.Content = value;
                     user.Visibility = System.Windows.Visibility.Visible;
-                    _isActive = true;
                 }
             else if (value == "")
                 {
                     user.Username.Content = value;
                     user.Visibility = System.Windows.Visibility.Hidden;
-                    _isActive = false;
                 }
             }
         }
@@ -92,11 +109,32 @@ namespace CouchPoker_Server
         }
         public string UID { get; set; }
 
-        public UserHandler(Controls.User uiControl, UserData data)
+        public UserHandler(Controls.User uiControl, UserData data) : this()
         {
             user = uiControl;
             userData = data;
             if (Username == "") uiControl.Visibility = System.Windows.Visibility.Hidden;
+        }
+
+        public UserHandler()
+        {
+            receiver = new Receiver();
+            receiver.DataReceived += Receiver_DataReceived;
+            receiver.ClientDisconnected += Receiver_ClientDisconnected;
+        }
+
+        private void Receiver_ClientDisconnected()
+        {
+            if (!MainWindow.dispatcher.CheckAccess())
+                MainWindow.dispatcher.Invoke(new Action(ClearUser));
+            else 
+                ClearUser();
+        }
+
+        private void Receiver_DataReceived(DataReceivedEventArgs args)
+        {
+            DataReceived?.Invoke(args);
+            Console.WriteLine(args.message);
         }
 
         private void ChangeColor(SolidColorBrush color)
@@ -116,5 +154,12 @@ namespace CouchPoker_Server
             return STATUS.BET;
         }
 
+        private void ClearUser()
+        {
+            MainWindow.usersHistory.Add(new UserData(_userData));
+            Username = "";
+            _tcpClient = null;
+            _userData = default;
+        }
     }
 }

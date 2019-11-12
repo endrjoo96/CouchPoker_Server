@@ -56,7 +56,7 @@
     </ApplicationDefinition>
     <Compile Include="Management\JoiningManagement.cs" />
     <Compile Include="Networking\Receiver.cs" />
-    <Compile Include="Networking\Worker.cs" />
+    <Compile Include="Networking\Connector.cs" />
     <Compile Include="Player\UserData.cs" />
     <Compile Include="Player\UserHandler.cs" />
     <Page Include="Controls\ChoosedCards.xaml">

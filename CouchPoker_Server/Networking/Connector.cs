@@ -40,13 +40,14 @@ namespace CouchPoker_Server.Networking
                     bool foundInHistory = false;
                     foreach (UserData usr in MainWindow.usersHistory)
                     {
-                        if (usr.uID.Equals(msg))
+                        if (usr.uID == null || usr.uID.Equals(msg))
                         {
                             foundInHistory = true;
                             MainWindow.dispatcher.Invoke(() =>
                             {
                                 user.tcpClient = acceptedClient;
-                                user.userData = usr;
+                                user.UserData = usr;
+                                user.IsReconnecting = true;
                             });
                         }
                     }
@@ -56,8 +57,9 @@ namespace CouchPoker_Server.Networking
                         msg = GetResponseFromRemote(acceptedClient, "ur nickname");
                         MainWindow.dispatcher.Invoke(() =>
                         {
-                            user.userData = new UserData(uid, msg, 10000);
+                            user.UserData = new UserData(uid, msg, 10000);
                             user.tcpClient = acceptedClient;
+                            user.IsReconnecting = false;
                         });
                     }
                     break;

@@ -32,11 +32,7 @@ namespace CouchPoker_Server.Management
                     }
                     currentDelay = serverIsFull ? delay * 10 : delay/10;
                     Thread.Sleep(currentDelay);
-                } while (!serverIsFull);
-                /**ON JOIN
-                 * 
-                 * 
-                 **/
+                } while (true);
 
             });
             t.Start();

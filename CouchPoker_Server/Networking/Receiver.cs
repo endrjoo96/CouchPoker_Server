@@ -11,7 +11,7 @@ namespace CouchPoker_Server.Networking
 {
     public class DataReceivedEventArgs : EventArgs
     {
-        public STATUS status;
+        public STATUS status = STATUS.NO_ACTION;
         public string message;
         public int value;
 

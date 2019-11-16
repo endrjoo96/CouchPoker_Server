@@ -25,9 +25,13 @@ namespace CouchPoker_Server
         public event DataReceivedDelegate DataReceived;
 
         private UserData _userData;
-        public UserData userData { get { return _userData; }
-            set {
+        public UserData UserData
+        {
+            get { return _userData; }
+            set
+            {
                 _userData = value;
+                UID = value.uID;
                 Username = value.username;
                 TotalBallance = value.ballance;
             }
@@ -38,86 +42,113 @@ namespace CouchPoker_Server
         private STATUS _status = STATUS.NEW_GAME;
         private TcpClient _tcpClient = null;
 
-        public bool IsActive { 
-            get {
-                if (_tcpClient == null || Username == "") return false;
+        public Card[] cards = new Card[2];
+
+        public bool IsReconnecting
+        {
+            get; set;
+        }
+        public bool IsActive
+        {
+            get
+            {
+                if (_tcpClient == null || Username == null) return false;
                 else return true;
-            } }
-        public TcpClient tcpClient { 
-            get { return _tcpClient; } 
-            set { _tcpClient = value;
+            }
+        }
+        public TcpClient tcpClient
+        {
+            get { return _tcpClient; }
+            set
+            {
+                _tcpClient = value;
                 if (_tcpClient != null)
                 {
                     receiver.BeginReceive(_tcpClient);
                 }
                 else receiver.StopReceiving();
 
-            } }
-        public string ID { get; set; }
+            }
+        }
 
-        public string Username {
+        public string Username
+        {
             get { return _userData.username; }
-            set { if (user.Username.Content.ToString() == "")
-                {
-                    user.Username.Content = value;
-                    user.Visibility = System.Windows.Visibility.Visible;
-                }
-            else if (value == "")
+            set
+            {
+                if (value == null || value == "")
                 {
                     user.Username.Content = value;
                     user.Visibility = System.Windows.Visibility.Hidden;
                 }
+                else
+                {
+                    user.Username.Content = value;
+                    user.Visibility = System.Windows.Visibility.Visible;
+                }
             }
         }
-        public int TotalBallance {
+        public int TotalBallance
+        {
             get { return _userData.ballance; }
-            set {
+            set
+            {
                 user.Total.Content = value.ToString();
                 _userData.ballance = value;
             }
         }
-        public int CurrentBet {
+        public int CurrentBet
+        {
             get { return Int32.Parse(user.Current.Content.ToString()); }
             set { user.Current.Content = value.ToString(); }
         }
-        public STATUS Status {
+        public STATUS Status
+        {
             get { return _status; }
-            set { switch (value) {
+            set
+            {
+                switch (value)
+                {
                     case STATUS.FOLD:
-                    {
-                        ChangeColor(new SolidColorBrush(Colors.Gray));
-                        user.Action.Content = value;
-                        break;
-                    }
+                        {
+                            ChangeColor(new SolidColorBrush(Colors.Gray));
+                            user.Action.Content = value;
+                            break;
+                        }
                     case STATUS.BET:
                     case STATUS.CHECK:
                     case STATUS.NO_ACTION:
                     case STATUS.NEW_GAME:
-                    {
-                        ChangeColor(new SolidColorBrush(Colors.White));
-                        break;
-                    }
+                        {
+                            ChangeColor(new SolidColorBrush(Colors.White));
+                            break;
+                        }
                     case STATUS.MY_TURN:
-                    {
-                        user.Username.Foreground = new SolidColorBrush(Colors.Yellow);
-                        user.Action.Content = "";
-                        break;
-                    }
+                        {
+                            user.Username.Foreground = new SolidColorBrush(Colors.Yellow);
+                            user.Action.Content = "";
+                            break;
+                        }
                 }
                 _status = value;
             }
         }
         public string UID { get; set; }
 
+
+        public UserHandler(Controls.User uiControl, UserData data, bool isReconnecting) : this(uiControl, data)
+        {
+            IsReconnecting = isReconnecting;
+        }
         public UserHandler(Controls.User uiControl, UserData data) : this()
         {
             user = uiControl;
-            userData = data;
-            if (Username == "") uiControl.Visibility = System.Windows.Visibility.Hidden;
+            UserData = data;
         }
 
         public UserHandler()
         {
+            IsReconnecting = false;
             receiver = new Receiver();
             receiver.DataReceived += Receiver_DataReceived;
             receiver.ClientDisconnected += Receiver_ClientDisconnected;
@@ -127,14 +158,21 @@ namespace CouchPoker_Server
         {
             if (!MainWindow.dispatcher.CheckAccess())
                 MainWindow.dispatcher.Invoke(new Action(ClearUser));
-            else 
+            else
                 ClearUser();
         }
 
         private void Receiver_DataReceived(DataReceivedEventArgs args)
         {
             DataReceived?.Invoke(args);
-            Console.WriteLine(args.message);
+            if (args.status != STATUS.NO_ACTION)
+            {
+                if (!MainWindow.dispatcher.CheckAccess())
+                    MainWindow.dispatcher.Invoke(() => { Status = args.status; });
+                else
+                    Status = args.status;
+            }
+            Console.WriteLine($"{Username} makes {args.message}");
         }
 
         private void ChangeColor(SolidColorBrush color)
@@ -148,18 +186,16 @@ namespace CouchPoker_Server
             user.Action.Foreground = color;
         }
 
-        public STATUS Play()
-        {
-            Status = STATUS.MY_TURN;
-            return STATUS.BET;
-        }
-
         private void ClearUser()
         {
             MainWindow.usersHistory.Add(new UserData(_userData));
-            Username = "";
+            UserData = default;
             _tcpClient = null;
-            _userData = default;
+        }
+
+        public void SetCards(Card card1, Card card2)
+        {
+            cards = new Card[] { card1, card2 };
         }
     }
 }

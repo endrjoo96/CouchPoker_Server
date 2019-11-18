@@ -13,7 +13,7 @@ namespace CouchPoker_Server
 {
     public enum STATUS
     {
-        CHECK, BET, FOLD, NO_ACTION, NEW_GAME, MY_TURN
+        CHECK, BET, FOLD, NO_ACTION, NEW_GAME, MY_TURN, ALL_IN, SMALL_BLIND, BIG_BLIND, DEALER
     }
 
     public class UserHandler
@@ -23,6 +23,8 @@ namespace CouchPoker_Server
 
         public delegate void DataReceivedDelegate(DataReceivedEventArgs args);
         public event DataReceivedDelegate DataReceived;
+
+        public bool IsPlaying { get; set; }
 
         private UserData _userData;
         public UserData UserData
@@ -44,6 +46,15 @@ namespace CouchPoker_Server
 
         public Card[] cards = new Card[2];
 
+        private bool _isDealer;
+        public bool IsDealer {
+            get { return _isDealer; }
+            set { 
+                _isDealer = value;
+                user.IsDealer.Visibility = 
+                    value ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
+            }
+        }
         public bool IsReconnecting
         {
             get; set;
@@ -117,16 +128,27 @@ namespace CouchPoker_Server
                         }
                     case STATUS.BET:
                     case STATUS.CHECK:
+                        {
+                            user.Action.Content = value;
+                            break;
+                        }
                     case STATUS.NO_ACTION:
                     case STATUS.NEW_GAME:
                         {
                             ChangeColor(new SolidColorBrush(Colors.White));
+                            user.Action.Content = "";
                             break;
                         }
                     case STATUS.MY_TURN:
                         {
+                            ChangeColor(new SolidColorBrush(Colors.White));
                             user.Username.Foreground = new SolidColorBrush(Colors.Yellow);
                             user.Action.Content = "";
+                            break;
+                        }
+                    case STATUS.DEALER:
+                        {
+                            IsDealer = true;
                             break;
                         }
                 }
@@ -162,15 +184,21 @@ namespace CouchPoker_Server
                 ClearUser();
         }
 
+        public DataReceivedEventArgs latestArgs;
         private void Receiver_DataReceived(DataReceivedEventArgs args)
         {
             DataReceived?.Invoke(args);
-            if (args.status != STATUS.NO_ACTION)
+            if (Status == STATUS.MY_TURN && args.status != STATUS.NO_ACTION)
             {
+                InvokeIfRequired(() => {
+                    latestArgs = args;
+                    Status = args.status;
+                });
+                /*
                 if (!MainWindow.dispatcher.CheckAccess())
                     MainWindow.dispatcher.Invoke(() => { Status = args.status; });
                 else
-                    Status = args.status;
+                    Status = args.status;*/
             }
             Console.WriteLine($"{Username} makes {args.message}");
         }
@@ -188,14 +216,30 @@ namespace CouchPoker_Server
 
         private void ClearUser()
         {
+            if (MainWindow.CountActiveUsers() < 2)
+            {
+                MainWindow.NotEnoughPlayers();
+            }
+            if (IsPlaying) Status = STATUS.FOLD;
+            while(IsPlaying) { System.Threading.Thread.Sleep(1000); }
             MainWindow.usersHistory.Add(new UserData(_userData));
             UserData = default;
             _tcpClient = null;
+
         }
 
-        public void SetCards(Card card1, Card card2)
+        public void SetCards(Card[] cards)
         {
-            cards = new Card[] { card1, card2 };
+            this.cards = cards;
+        }
+
+        public static void InvokeIfRequired(Action action)
+        {
+            if (!MainWindow.dispatcher.CheckAccess())
+            {
+                MainWindow.dispatcher.Invoke(action);
+            }
+            else action.Invoke();
         }
     }
 }

@@ -11,6 +11,11 @@
                HorizontalAlignment="Left" 
                VerticalAlignment="Top" Foreground="White"
                FontWeight="Bold" Padding="5,0,0,0" FontSize="16"/>
+            <Label Name="IsDealer" Content="Dealer" HorizontalContentAlignment="Left"
+               HorizontalAlignment="Left" 
+               VerticalAlignment="Top" Foreground="White"
+                  Visibility="Hidden"
+               Margin="0,88,0,0" Padding="5,0,0,0" FontSize="7"/>
             <WrapPanel HorizontalAlignment="Right">
                 <Label Name="label1" Content="Total: $" HorizontalContentAlignment="Right"
                HorizontalAlignment="Right" 

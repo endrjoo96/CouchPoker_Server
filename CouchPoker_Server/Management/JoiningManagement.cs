@@ -20,6 +20,7 @@ namespace CouchPoker_Server.Management
                 bool serverIsFull = true;
                 do
                 {
+
                     foreach (UserHandler user in users)
                     {
                         if (!user.IsActive)

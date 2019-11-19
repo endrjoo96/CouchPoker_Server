@@ -7,10 +7,10 @@
              mc:Ignorable="d" 
              Width="auto" Height="auto">
     <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
-        <Image Name="Flop_1" Stretch="Uniform" Source="/CouchPoker_Server;component/Resources/Cards/Gray_back.jpg"/>
-        <Image Name="Flop_2" Stretch="Uniform" Source="/CouchPoker_Server;component/Resources/Cards/Gray_back.jpg"/>
-        <Image Name="Flop_3" Stretch="Uniform" Source="/CouchPoker_Server;component/Resources/Cards/Gray_back.jpg"/>
-        <Image Name="Turn"   Stretch="Uniform" Source="/CouchPoker_Server;component/Resources/Cards/Gray_back.jpg"/>
-        <Image Name="River"  Stretch="Uniform" Source="/CouchPoker_Server;component/Resources/Cards/Gray_back.jpg"/>
+        <Image Name="Flop_1" Stretch="Uniform" />
+        <Image Name="Flop_2" Stretch="Uniform" />
+        <Image Name="Flop_3" Stretch="Uniform" />
+        <Image Name="Turn"   Stretch="Uniform" />
+        <Image Name="River"  Stretch="Uniform" />
     </StackPanel>
 </UserControl>

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace CouchPoker_Server
 {
@@ -18,9 +19,6 @@ namespace CouchPoker_Server
 
     public class UserHandler
     {
-        // dodać indywidualny worker
-        // podpiac z niego event o przychodzacym polaczeniu
-
         public delegate void DataReceivedDelegate(DataReceivedEventArgs args);
         public event DataReceivedDelegate DataReceived;
 
@@ -129,6 +127,7 @@ namespace CouchPoker_Server
                     case STATUS.BET:
                     case STATUS.CHECK:
                         {
+                            ChangeColor(new SolidColorBrush(Colors.White));
                             user.Action.Content = value;
                             break;
                         }
@@ -231,6 +230,14 @@ namespace CouchPoker_Server
         public void SetCards(Card[] cards)
         {
             this.cards = cards;
+            user.CARD_1.Source = new BitmapImage(new Uri(CARD.reverse, UriKind.Relative));
+            user.CARD_2.Source = new BitmapImage(new Uri(CARD.reverse, UriKind.Relative));
+        }
+
+        public void RevealCards()
+        {
+            user.CARD_1.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative));
+            user.CARD_2.Source = new BitmapImage(new Uri(cards[1].Path, UriKind.Relative));
         }
 
         public static void InvokeIfRequired(Action action)

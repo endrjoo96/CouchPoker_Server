@@ -7,7 +7,11 @@
              mc:Ignorable="d" Height="auto" Width="auto" MinWidth="125">
     <Viewbox>
         <Grid Name="grid">
-            <Label Name="Username" Content="" MinWidth="120"
+            <StackPanel Height="30" FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5,0,0,5">
+                <Image x:Name="CARD_1" Source="/CouchPoker_Server;component/Resources/Cards/Red_back.jpg" Stretch="Uniform"/>
+                <Image x:Name="CARD_2" Source="/CouchPoker_Server;component/Resources/Cards/Red_back.jpg" Stretch="Uniform"/>
+            </StackPanel>
+            <Label Name="Username" Content="" MinWidth="130"
                HorizontalAlignment="Left" 
                VerticalAlignment="Top" Foreground="White"
                FontWeight="Bold" Padding="5,0,0,0" FontSize="16"/>
@@ -36,7 +40,7 @@
                HorizontalAlignment="Stretch" 
                VerticalAlignment="Top" Foreground="White"
                Margin="0,52,0,0" Padding="0,0,0,0" FontSize="24"/>
-                <Label Name="Current" Content="0" HorizontalContentAlignment="Right"
+                <Label Name="Current" Content="10000" HorizontalContentAlignment="Right"
                HorizontalAlignment="Stretch" 
                VerticalAlignment="Top" Foreground="White"
                Margin="0,52,0,0" Padding="0,0,5,0" FontSize="24"/>

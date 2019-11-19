@@ -1,22 +1,14 @@
 ﻿using CouchPoker_Server.Management;
-using CouchPoker_Server.Networking;
 using CouchPoker_Server.Player;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
+using static CouchPoker_Server.Misc.Threading;
 
 namespace CouchPoker_Server
 {
@@ -54,17 +46,19 @@ namespace CouchPoker_Server
                 new UserHandler(UserSlot_7, new UserData())
             };
 
-            usedCards.Add(GetRandomCardSafely());
-            usedCards.Add(GetRandomCardSafely());
-            usedCards.Add(GetRandomCardSafely());
-            usedCards.Add(GetRandomCardSafely());
-            usedCards.Add(GetRandomCardSafely());
+            var myCards = new List<Card>() {
+                new Card(CARD.CLUBS, CARD._A),
+                new Card(CARD.CLUBS, CARD._7),
+                new Card(CARD.DIAMONDS, CARD._K),
+                new Card(CARD.SPADES, CARD._7),
+                new Card(CARD.HEARTS, CARD._K),
+                new Card(CARD.CLUBS, CARD._K),
+                new Card(CARD.DIAMONDS, CARD._9)
+            };
+            Set s = new Set(myCards);
 
-            Card[] cards = new Card[] { usedCards[0], usedCards[1], usedCards[2] };
-
-            SetCards(GAME_MOMENT.FLOP, cards);
-            SetCards(GAME_MOMENT.TURN, new Card[] { usedCards[3] });
-            SetCards(GAME_MOMENT.RIVER, new Card[] { usedCards[4] });
+            for (int i = 0; i < 7; i++) { usedCards.Add(GetRandomCardSafely()); }
+            Set s2 = new Set(usedCards);
 
 
             JoiningManagement.Run(users, usersHistory);
@@ -105,6 +99,16 @@ namespace CouchPoker_Server
                         choosedCards.River.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative));
                         break;
                     }
+                case GAME_MOMENT.PREFLOP:
+                    {
+                        ImageSource src = new BitmapImage(new Uri(CARD.reverse, UriKind.Relative));
+                        choosedCards.Flop_1.Source = src;
+                        choosedCards.Flop_2.Source = src;
+                        choosedCards.Flop_3.Source = src;
+                        choosedCards.Turn.Source = src;
+                        choosedCards.River.Source = src;
+                        break;
+                    }
             }
 
         }
@@ -129,50 +133,77 @@ namespace CouchPoker_Server
                         Console.WriteLine($"currently connected: {current}...");
                         System.Threading.Thread.Sleep(1000);
                     } while (current < 2);
-                    var currentUsers = Dispatcher.Invoke(new Func<List<UserHandler>>(GetActiveUsers));
-                    foreach (UserHandler u in currentUsers) u.IsPlaying = true;
-                    while (currentUsers.Count >= 2)
+                    List<UserHandler> currentUsers;
+                    do
                     {
+                        currentUsers = Dispatcher.Invoke(new Func<List<UserHandler>>(GetActiveUsers));
+                        foreach (UserHandler u in currentUsers)
+                        {
+                            InvokeIfRequired(() =>
+                            {
+                                u.IsPlaying = true;
+                                u.IsDealer = false;
+                                u.Status = STATUS.NEW_GAME;
+
+                            });
+                        }
+                        InvokeIfRequired(() => { usedCards = new List<Card>(); });
+
+                        if (currentDealerIndex >= currentUsers.Count)
+                        {
+                            currentDealerIndex = 0;
+                        }
+
                         currentMoment = GAME_MOMENT.PREFLOP;
                         while (currentMoment != GAME_MOMENT.SHOW)
                         {
+                            foreach (UserHandler u in currentUsers)
+                            {
+                                InvokeIfRequired(() => { u.CurrentBet = 0; });
+                            }
+
                             switch (currentMoment)
                             {
                                 case GAME_MOMENT.PREFLOP:
                                     {
-                                        ExecutePreflop(currentUsers);
+                                        Dispatcher.Invoke(() => { ExecutePreflop(currentUsers); });
                                         break;
                                     }
                                 case GAME_MOMENT.FLOP:
                                     {
-                                        ExecuteFlop();
+                                        Dispatcher.Invoke(() => { ExecuteFlop(); });
+
                                         break;
                                     }
                                 case GAME_MOMENT.TURN:
                                     {
-                                        ExecuteTurn();
+                                        Dispatcher.Invoke(() => { ExecuteTurn(); });
+
                                         break;
                                     }
                                 case GAME_MOMENT.RIVER:
                                     {
-                                        ExecuteRiver();
+                                        Dispatcher.Invoke(() => { ExecuteRiver(); });
+
                                         break;
                                     }
                             }
                             UserHandler potentialWinner = Bidd(currentUsers);
                             if (potentialWinner == null)
                                 currentMoment++;
+                            else break;
                         }
-                        ExecuteShow();
+                        ExecuteShow(currentUsers);
+                        ExecuteRewardCalculation(currentUsers);
+
+                        currentDealerIndex++;
+
+                        foreach (UserHandler u in currentUsers) u.IsPlaying = false;
 
 
 
 
-
-
-
-
-                        foreach (UserHandler user in currentUsers)
+                        /*foreach (UserHandler user in currentUsers)
                         {
                             Dispatcher.Invoke(new Action(() => { user.Status = STATUS.MY_TURN; }));
                             Dispatcher.Invoke(new Action(() => { }));
@@ -181,14 +212,14 @@ namespace CouchPoker_Server
                                 Console.WriteLine($"Waiting for {user.Username}...");
                                 System.Threading.Thread.Sleep(1000);
                             }
-                        }
+                        }*/
 
 
 
                         Console.WriteLine("Time to play...");
                         Console.WriteLine($"currently connected: {currentUsers.Count}...");
                         System.Threading.Thread.Sleep(1000);
-                    }
+                    } while (currentUsers.Count >= 2);
                 }
             }, cts.Token);
 
@@ -198,11 +229,11 @@ namespace CouchPoker_Server
             }
             catch (OperationCanceledException ocex)
             {
-
+                Console.WriteLine(ocex.StackTrace);
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine(ex.StackTrace);
             }
             finally
             {
@@ -213,115 +244,150 @@ namespace CouchPoker_Server
         {
             int checkValue = 0;
             UserHandler winner = null;
-            Dispatcher.Invoke(() =>
+            bool begin = false;
+            int checkedUsersCount = 0;
+            bool exit = false;
+            while (!exit)
             {
-                bool begin = false;
-                int checkedUsersCount = 0;
-                bool exit = false;
-                while (!exit)
+                foreach (UserHandler u in currentUsers)
                 {
-                    foreach (UserHandler u in currentUsers)
+                    if (u.Status != STATUS.FOLD || u.Status != STATUS.ALL_IN)
                     {
-                        if (u.Status != STATUS.FOLD || u.Status != STATUS.ALL_IN)
+                        if (u.Status == STATUS.DEALER)
                         {
-                            if (u.Status == STATUS.DEALER)
+                            InvokeIfRequired(() =>
                             {
                                 u.Status = STATUS.NO_ACTION;
-                                begin = true;
-                                continue;
-                            }
-                            else if (u.Status == STATUS.SMALL_BLIND)
+                            });
+                            begin = true;
+                            continue;
+                        }
+                        else if (u.Status == STATUS.SMALL_BLIND)
+                        {
+                            if (u.TotalBallance < (blindValue / 2))
+                                InvokeIfRequired(() =>
+                                {
+                                    u.Status = STATUS.FOLD;
+                                    u.IsPlaying = false;
+                                });
+                            else
                             {
-                                if (u.TotalBallance < (blindValue / 2)) u.Status = STATUS.FOLD;
-                                else
+                                InvokeIfRequired(() =>
                                 {
                                     u.TotalBallance -= (blindValue / 2);
                                     dealer.Pot += (blindValue / 2);
                                     u.CurrentBet = (blindValue / 2);
-                                }
+                                    u.Status = STATUS.NO_ACTION;
+                                });
                             }
-                            else if (u.Status == STATUS.BIG_BLIND)
+                        }
+                        else if (u.Status == STATUS.BIG_BLIND)
+                        {
+                            if (u.TotalBallance < (blindValue))
+                                InvokeIfRequired(() =>
+                                {
+                                    u.Status = STATUS.FOLD;
+                                    u.IsPlaying = false;
+                                });
+                            else
                             {
-                                if (u.TotalBallance < (blindValue)) u.Status = STATUS.FOLD;
-                                else
+                                InvokeIfRequired(() =>
                                 {
                                     u.TotalBallance -= (blindValue);
                                     dealer.Pot += (blindValue);
                                     u.CurrentBet = (blindValue);
+                                    u.Status = STATUS.NO_ACTION;
+                                    checkValue = blindValue;
+                                });
+                            }
+                            begin = true;
+                        }
+                        
+
+                        else if (begin)
+                        {
+                            InvokeIfRequired(() =>
+                            {
+
+                                u.Status = STATUS.MY_TURN;
+                            });
+                            while (u.Status == STATUS.MY_TURN)
+                            {
+                                if (u.IsActive)
+                                {
+                                    Console.WriteLine($"Waiting for {u.Username}...");
+                                    Thread.Sleep(1000);
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"{u.Username} disconnected, skipping...");
+                                    u.Status = STATUS.FOLD;
                                 }
                             }
-
-                            else if (begin)
+                            switch (u.Status)
                             {
-                                u.Status = STATUS.MY_TURN;
-                                while (u.Status == STATUS.MY_TURN)
-                                {
-                                    if (u.IsActive)
+                                case STATUS.CHECK:
                                     {
-                                        Console.WriteLine($"Waiting for {u.Username}...");
-                                        Thread.Sleep(1000);
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine($"{u.Username} disconnected, skipping...");
-                                        u.Status = STATUS.FOLD;
-                                    }
-                                }
-                                switch (u.Status)
-                                {
-                                    case STATUS.CHECK:
+                                        checkedUsersCount++;
+                                        InvokeIfRequired(() =>
                                         {
-                                            checkedUsersCount++;
+
                                             int coinsToAdd = checkValue - u.CurrentBet;
                                             u.TotalBallance -= coinsToAdd;
                                             dealer.Pot += coinsToAdd;
                                             u.CurrentBet = checkValue;
-                                            break;
-                                        }
-                                    case STATUS.BET:
+                                        });
+                                        break;
+                                    }
+                                case STATUS.BET:
+                                    {
+                                        checkedUsersCount = 1;
+                                        InvokeIfRequired(() =>
                                         {
-                                            checkedUsersCount = 0;
+
                                             int coinsToAdd = u.latestArgs.value - u.CurrentBet;
                                             u.TotalBallance -= coinsToAdd;
                                             dealer.Pot += coinsToAdd;
                                             checkValue = u.latestArgs.value;
                                             u.CurrentBet = checkValue;
-                                            break;
-                                        }
-                                    case STATUS.FOLD:
-                                        {
-                                            break;
-                                        }
-                                }
-                                int nonFoldedUsers = 0;
-                                foreach(var u2 in currentUsers)
-                                {
-                                    if (u2.Status != STATUS.FOLD) nonFoldedUsers++;
-                                }
-                                if (checkedUsersCount == nonFoldedUsers)
-                                {
-                                    exit = true;
-                                    break;
-                                }
-                                if (nonFoldedUsers==1)
-                                {
-                                    exit = true;
-                                    foreach (var u2 in currentUsers)
-                                    {
-                                        if (u2.Status != STATUS.FOLD) winner = u2;
+                                        });
+                                        break;
                                     }
-                                    break;
+                                case STATUS.FOLD:
+                                    {
+                                        break;
+                                    }
+                            }
+                            int nonFoldedUsers = 0;
+                            foreach (var u2 in currentUsers)
+                            {
+                                if (u2.Status != STATUS.FOLD) nonFoldedUsers++;
+                            }
+                            if (checkedUsersCount == nonFoldedUsers)
+                            {
+                                exit = true;
+                                break;
+                            }
+                            if (nonFoldedUsers == 1)
+                            {
+                                exit = true;
+                                foreach (var u2 in currentUsers)
+                                {
+                                    if (u2.Status != STATUS.FOLD) winner = u2;
                                 }
+                                break;
                             }
                         }
+                        else if (u.IsDealer) begin = true;
                     }
                 }
-            });
+            }
             return winner;
         }
 
         private void ExecutePreflop(List<UserHandler> currentUsers)
         {
+            SetCards(GAME_MOMENT.PREFLOP, null);
             foreach (var user in currentUsers)
             {
                 usedCards.Add(GetRandomCardSafely());
@@ -349,20 +415,46 @@ namespace CouchPoker_Server
 
         private void ExecuteFlop()
         {
-
+            for (int i = 0; i < 3; i++) { usedCards.Add(GetRandomCardSafely()); }
+            SetCards(GAME_MOMENT.FLOP, new Card[]
+            {
+                usedCards[usedCards.Count-3],
+                usedCards[usedCards.Count-2],
+                usedCards[usedCards.Count-1]
+            });
         }
 
         private void ExecuteTurn()
         {
-
+            usedCards.Add(GetRandomCardSafely());
+            SetCards(GAME_MOMENT.TURN, new Card[]
+            {
+                usedCards[usedCards.Count-1]
+            });
         }
 
         private void ExecuteRiver()
         {
+            usedCards.Add(GetRandomCardSafely());
+            SetCards(GAME_MOMENT.RIVER, new Card[]
+            {
+                usedCards[usedCards.Count-1]
+            });
+        }
+
+        private void ExecuteShow(List<UserHandler> currentUsers)
+        {
+            foreach (UserHandler u in currentUsers)
+            {
+                if (u.Status != STATUS.FOLD)
+                {
+                    InvokeIfRequired(() => { u.RevealCards(); });
+                }
+            }
 
         }
 
-        private void ExecuteShow()
+        private void ExecuteRewardCalculation(List<UserHandler> currentUsers)
         {
 
         }

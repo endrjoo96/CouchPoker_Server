@@ -18,6 +18,13 @@ namespace CouchPoker_Server
 
     public class Set
     {
+        private class FigureMeta
+        {
+            public VALUE HIGH_CARD { get; set; }
+            public VALUE LOW_CARD { get; set; }
+            public Card[] figureCards { get; set; }
+        }
+
         private List<Card> cardsSet;
 
         public FIGURE Figure { get; private set; } = FIGURE.HIGH_CARD;
@@ -38,15 +45,35 @@ namespace CouchPoker_Server
                 switch (figure)
                 {
                     case FIGURE.HIGH_CARD:
+                    {
+                        for (int i = 0; i < 5; i++)
                         {
-                            for (int i = 0; i < 5; i++)
+                            dynamicList.Add(cardsSet[i]);
+                        }
+                        break;
+                    }
+                    case FIGURE.PAIR:
+                    {
+                        for (int i = 0; i < cardsSet.Count - 1; i++)
+                        {
+                            if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum)
                             {
                                 dynamicList.Add(cardsSet[i]);
+                                dynamicList.Add(cardsSet[i + 1]);
+                                cardsSet.Remove(cardsSet[i]);
+                                cardsSet.Remove(cardsSet[i + 1]);
+                                break;
                             }
-                            break;
                         }
-                    case FIGURE.PAIR:
+                        for (int i = 0; i < 3; i++)
                         {
+                            dynamicList.Add(cardsSet[i]);
+                        }
+                        break;
+                    }
+                    case FIGURE.TWO_PAIRS:
+                    {
+                        for (int x = 0; x < 2; x++)
                             for (int i = 0; i < cardsSet.Count - 1; i++)
                             {
                                 if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum)
@@ -58,110 +85,153 @@ namespace CouchPoker_Server
                                     break;
                                 }
                             }
-                            for (int i = 0; i < 3; i++)
-                            {
-                                dynamicList.Add(cardsSet[i]);
-                            }
-                            break;
-                        }
-                    case FIGURE.TWO_PAIRS:
-                        {
-                            for (int x = 0; x < 2; x++)
-                                for (int i = 0; i < cardsSet.Count - 1; i++)
-                                {
-                                    if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum)
-                                    {
-                                        dynamicList.Add(cardsSet[i]);
-                                        dynamicList.Add(cardsSet[i + 1]);
-                                        cardsSet.Remove(cardsSet[i]);
-                                        cardsSet.Remove(cardsSet[i + 1]);
-                                        break;
-                                    }
-                                }
-                            dynamicList.Add(cardsSet[0]);
-                            break;
-                        }
+                        dynamicList.Add(cardsSet[0]);
+                        break;
+                    }
                     case FIGURE.THREE_OF_A_KIND:
+                    {
+                        for (int i = 0; i < cardsSet.Count - 2; i++)
                         {
-                            for (int i = 0; i < cardsSet.Count - 2; i++)
+                            if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum &&
+                                cardsSet[i + 1].Value_Enum == cardsSet[i + 2].Value_Enum)
                             {
-                                if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum &&
-                                    cardsSet[i+1].Value_Enum == cardsSet[i + 2].Value_Enum)
-                                {
-                                    dynamicList.Add(cardsSet[i]);
-                                    dynamicList.Add(cardsSet[i + 1]);
-                                    dynamicList.Add(cardsSet[i + 2]);
-                                    cardsSet.Remove(cardsSet[i]);
-                                    cardsSet.Remove(cardsSet[i + 1]);
-                                    cardsSet.Remove(cardsSet[i + 2]);
-                                    break;
-                                }
-                            }
-                            for(int i = 0; i < 2; i++){
                                 dynamicList.Add(cardsSet[i]);
+                                dynamicList.Add(cardsSet[i + 1]);
+                                dynamicList.Add(cardsSet[i + 2]);
+                                cardsSet.Remove(cardsSet[i]);
+                                cardsSet.Remove(cardsSet[i + 1]);
+                                cardsSet.Remove(cardsSet[i + 2]);
+                                break;
                             }
-                            break;
                         }
+                        for (int i = 0; i < 2; i++)
+                        {
+                            dynamicList.Add(cardsSet[i]);
+                        }
+                        break;
+                    }
                     case FIGURE.FOUR_OF_A_KIND:
+                    {
+                        for (int i = 0; i < cardsSet.Count - 3; i++)
                         {
-                            for (int i = 0; i < cardsSet.Count - 3; i++)
+                            if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum &&
+                                cardsSet[i + 1].Value_Enum == cardsSet[i + 2].Value_Enum &&
+                                cardsSet[i + 2].Value_Enum == cardsSet[i + 3].Value_Enum)
                             {
-                                if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum &&
-                                    cardsSet[i + 1].Value_Enum == cardsSet[i + 2].Value_Enum &&
-                                    cardsSet[i + 2].Value_Enum == cardsSet[i + 3].Value_Enum)
-                                {
-                                    dynamicList.Add(cardsSet[i]);
-                                    dynamicList.Add(cardsSet[i + 1]);
-                                    dynamicList.Add(cardsSet[i + 2]);
-                                    dynamicList.Add(cardsSet[i + 3]);
-                                    cardsSet.Remove(cardsSet[i]);
-                                    cardsSet.Remove(cardsSet[i + 1]);
-                                    cardsSet.Remove(cardsSet[i + 2]);
-                                    cardsSet.Remove(cardsSet[i + 3]);
-                                    break;
-                                }
+                                dynamicList.Add(cardsSet[i]);
+                                dynamicList.Add(cardsSet[i + 1]);
+                                dynamicList.Add(cardsSet[i + 2]);
+                                dynamicList.Add(cardsSet[i + 3]);
+                                cardsSet.Remove(cardsSet[i]);
+                                cardsSet.Remove(cardsSet[i + 1]);
+                                cardsSet.Remove(cardsSet[i + 2]);
+                                cardsSet.Remove(cardsSet[i + 3]);
+                                break;
                             }
-                            dynamicList.Add(cardsSet[0]);
-                            break;
                         }
+                        dynamicList.Add(cardsSet[0]);
+                        break;
+                    }
                     case FIGURE.FULL:
+                    {
+                        for (int i = 0; i < cardsSet.Count - 2; i++)
                         {
-                            for (int i = 0; i < cardsSet.Count - 2; i++)
+                            if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum &&
+                                cardsSet[i + 1].Value_Enum == cardsSet[i + 2].Value_Enum)
                             {
-                                if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum &&
-                                    cardsSet[i + 1].Value_Enum == cardsSet[i + 2].Value_Enum)
-                                {
-                                    dynamicList.Add(cardsSet[i]);
-                                    dynamicList.Add(cardsSet[i + 1]);
-                                    dynamicList.Add(cardsSet[i + 2]);
-                                    cardsSet.Remove(cardsSet[i]);
-                                    cardsSet.Remove(cardsSet[i + 1]);
-                                    cardsSet.Remove(cardsSet[i + 2]);
-                                    break;
-                                }
+                                dynamicList.Add(cardsSet[i]);
+                                dynamicList.Add(cardsSet[i + 1]);
+                                dynamicList.Add(cardsSet[i + 2]);
+                                cardsSet.Remove(cardsSet[i]);
+                                cardsSet.Remove(cardsSet[i + 1]);
+                                cardsSet.Remove(cardsSet[i + 2]);
+                                break;
                             }
-                            for (int i = 0; i < cardsSet.Count - 1; i++)
-                            {
-                                if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum &&
-                                    cardsSet[i + 1].Value_Enum == cardsSet[i + 2].Value_Enum)
-                                {
-                                    dynamicList.Add(cardsSet[i]);
-                                    dynamicList.Add(cardsSet[i + 1]);
-                                    cardsSet.Remove(cardsSet[i]);
-                                    cardsSet.Remove(cardsSet[i + 1]);
-                                    break;
-                                }
-                            }
-                            break;
                         }
+                        for (int i = 0; i < cardsSet.Count - 1; i++)
+                        {
+                            if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum &&
+                                cardsSet[i + 1].Value_Enum == cardsSet[i + 2].Value_Enum)
+                            {
+                                dynamicList.Add(cardsSet[i]);
+                                dynamicList.Add(cardsSet[i + 1]);
+                                cardsSet.Remove(cardsSet[i]);
+                                cardsSet.Remove(cardsSet[i + 1]);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case FIGURE.FLUSH:
+                    {
+                        List<Card>[] cards = new List<Card>[]
+                        {
+                            new List<Card>(),
+                            new List<Card>(),
+                            new List<Card>(),
+                            new List<Card>()
+                        };
+
+                        for (int i = 0; i < cardsSet.Count; i++)
+                        {
+                            switch (cardsSet[i].Color)
+                            {
+                                case CARD.HEARTS: cards[0].Add(cardsSet[i]); break;
+                                case CARD.DIAMONDS: cards[1].Add(cardsSet[i]); break;
+                                case CARD.SPADES: cards[2].Add(cardsSet[i]); break;
+                                case CARD.CLUBS: cards[3].Add(cardsSet[i]); break;
+                            }
+                        }
+                        foreach (var x in cards)
+                        {
+                            if (x.Count > 5)
+                            {
+                                for (int i = 0; i < 5; i++)
+                                {
+                                    dynamicList.Add(x[i]);
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case FIGURE.ROYAL_POKER:
+                    case FIGURE.POKER:
+                    case FIGURE.STRAIGHT:
+                    {
+                        for (int i = 0; i < cardsSet.Count - 4; i++)
+                        {
+                            for (int j = i; j < i + 4; j++)
+                            {
+
+                                //TODO: detecting straights, including anomalies like 5-4-3-2-A
 
 
-                        //TODO: straight, flush, poker, royal
+
+
+
+                                /*if (j != cardsSet.Count-1 && (cardsSet[j].Value_Enum != cardsSet[j + 1].Value_Enum + 1))
+                                {
+                                    dynamicList = new List<Card>();
+                                    break;
+                                }
+                                else
+                                {
+                                    if (!dynamicList.Contains(cardsSet[j]))     dynamicList.Add(cardsSet[j]);
+                                    if (!dynamicList.Contains(cardsSet[j+1]))   dynamicList.Add(cardsSet[j+1]);
+                                }*/
+                            }
+                        }
+                        break;
+                    }
+
+
+                    //TODO: straight, poker, royal
 
 
 
                 }
-                cardsSet = dynamicList;
+                cardsSet = new List<Card>(dynamicList);
             }
 
 
@@ -183,17 +253,16 @@ namespace CouchPoker_Server
         }
         private void CalculateFigure()
         {
-            //checking for pairs
-            FIGURE[] detectedFigures = new FIGURE[] { FIGURE.HIGH_CARD };
+            List<FIGURE> detectedFigures = new List<FIGURE>() { FIGURE.HIGH_CARD };
             for (int i = 0; i < cardsSet.Count - 1; i++)
             {
                 if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum)
                 {
-                    detectedFigures = new FIGURE[] { FIGURE.PAIR };
+                    detectedFigures.Add(FIGURE.PAIR);
                     break;
                 }
             }
-            if (detectedFigures[0] == FIGURE.PAIR)
+            if (detectedFigures.Contains(FIGURE.PAIR))
             {
                 VALUE firstPairValue = VALUE._2;
                 bool firstPairDetected = false;
@@ -203,28 +272,19 @@ namespace CouchPoker_Server
                     {
                         if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum && cardsSet[i + 1].Value_Enum == firstPairValue)
                         {
-                            if (detectedFigures[0] == FIGURE.TWO_PAIRS)
+                            if (detectedFigures.Contains(FIGURE.THREE_OF_A_KIND))
                             {
-                                detectedFigures = new FIGURE[] { FIGURE.TWO_PAIRS, FIGURE.THREE_OF_A_KIND };
-                                break;
-                            }
-                            else if (detectedFigures[0] == FIGURE.THREE_OF_A_KIND)
-                            {
-                                detectedFigures = new FIGURE[] { FIGURE.FOUR_OF_A_KIND };
+                                detectedFigures.Add(FIGURE.FOUR_OF_A_KIND);
                                 Figure = FIGURE.FOUR_OF_A_KIND;
                                 InsertBestCardsToList();
                                 return;
                             }
-                            else detectedFigures = new FIGURE[] { FIGURE.THREE_OF_A_KIND };
+                            detectedFigures.Add(FIGURE.THREE_OF_A_KIND);
+                            break;
                         }
                         else if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum && cardsSet[i + 1].Value_Enum != firstPairValue)
                         {
-                            if (detectedFigures[0] == FIGURE.THREE_OF_A_KIND)
-                            {
-                                detectedFigures = new FIGURE[] { FIGURE.TWO_PAIRS, FIGURE.THREE_OF_A_KIND };
-                                break;
-                            }
-                            else detectedFigures = new FIGURE[] { FIGURE.TWO_PAIRS };
+                            detectedFigures.Add(FIGURE.TWO_PAIRS);
                         }
 
                     }
@@ -234,39 +294,105 @@ namespace CouchPoker_Server
                         firstPairDetected = true;
                     }
                 }
-                if (detectedFigures.Length == 2)
+                if (detectedFigures.Contains(FIGURE.THREE_OF_A_KIND) &&
+                    detectedFigures.Contains(FIGURE.PAIR))
                 {
                     Figure = FIGURE.FULL;
                     InsertBestCardsToList();
                     return;
                 }
-                else if (detectedFigures[0] == FIGURE.TWO_PAIRS)
+                else if (detectedFigures.Contains(FIGURE.TWO_PAIRS))
                 {
                     Figure = FIGURE.TWO_PAIRS;
                     InsertBestCardsToList();
                     return;
                 }
-                else if (detectedFigures[0] == FIGURE.THREE_OF_A_KIND)
+            }
+
+
+            bool straight = false;
+            int from = 0;
+            for (int i = 0; i < cardsSet.Count - 2; i++)
+            {
+                for (int j = i; j < i + 4; j++)
                 {
-                    Figure = FIGURE.THREE_OF_A_KIND;
-                    InsertBestCardsToList();
-                    return;
+                    if (cardsSet[j].Value_Enum != cardsSet[j + 1].Value_Enum + 1 ||
+                        !(cardsSet[j].Value_Enum == VALUE._2 && cardsSet[0].Value_Enum == VALUE._A))
+                    {
+                        straight = false;
+                        break;
+                    }
+                    else straight = true;
+                }
+                if (straight)
+                {
+                    from = i;
+                    detectedFigures.Add(FIGURE.STRAIGHT);
+                    break;
+                }
+            }
+            if (straight)
+            {
+                bool sameColor = true;
+                for (int i = from; i < from + 4; i++)
+                {
+                    if (cardsSet[i].Color != cardsSet[i + 1].Color)
+                    {
+                        sameColor = false;
+                        break;
+                    }
+                }
+                if (sameColor)
+                {
+                    detectedFigures.Add(FIGURE.POKER);
+                    if (cardsSet[from].Value_Enum == VALUE._A)
+                    {
+                        detectedFigures.Add(FIGURE.ROYAL_POKER);
+                    }
                 }
 
-
             }
-            else
+            List<Card> hearts = new List<Card>();
+            List<Card> diamonds = new List<Card>();
+            List<Card> spades = new List<Card>();
+            List<Card> clubs = new List<Card>();
+
+            for (int i = 0; i < cardsSet.Count; i++)
             {
-
-
-
-
+                switch (cardsSet[i].Color)
+                {
+                    case CARD.HEARTS: hearts.Add(cardsSet[i]); break;
+                    case CARD.DIAMONDS: diamonds.Add(cardsSet[i]); break;
+                    case CARD.SPADES: spades.Add(cardsSet[i]); break;
+                    case CARD.CLUBS: clubs.Add(cardsSet[i]); break;
+                }
             }
 
 
+
+
+            detectedFigures.Sort((p, q) => q.CompareTo(p));
+            Figure = detectedFigures[0];
+            InsertBestCardsToList();
+            return;
 
             throw new NotImplementedException();
         }
+
+        /*private FigureMeta DetectPair()
+        {
+            FigureMeta result = new FigureMeta();
+            for (int i = 0; i < cardsSet.Count - 1; i++)
+            {
+                if (cardsSet[i].Value_Enum == cardsSet[i + 1].Value_Enum)
+                {
+                    result.HIGH_CARD = cardsSet[i].Value_Enum;
+                    break;
+                }
+            }
+        }*/
+
+
     }
     public class Card
     {
@@ -277,11 +403,9 @@ namespace CouchPoker_Server
 
         public string Path { get { return _path; } private set { _path = value; } }
         public string Color { get { return _color; } private set { _color = value; } }
-        public string Value
-        {
+        public string Value {
             get { return _value; }
-            private set
-            {
+            private set {
                 _value = value;
                 _value_enum = (VALUE)Enum.Parse(typeof(VALUE), "_" + value);
             }

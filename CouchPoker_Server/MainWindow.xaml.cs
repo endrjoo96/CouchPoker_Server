@@ -201,21 +201,7 @@ namespace CouchPoker_Server
                         foreach (UserHandler u in currentUsers) u.IsPlaying = false;
 
 
-
-
-                        /*foreach (UserHandler user in currentUsers)
-                        {
-                            Dispatcher.Invoke(new Action(() => { user.Status = STATUS.MY_TURN; }));
-                            Dispatcher.Invoke(new Action(() => { }));
-                            while (user.Status == STATUS.MY_TURN)
-                            {
-                                Console.WriteLine($"Waiting for {user.Username}...");
-                                System.Threading.Thread.Sleep(1000);
-                            }
-                        }*/
-
-
-
+                        
                         Console.WriteLine("Time to play...");
                         Console.WriteLine($"currently connected: {currentUsers.Count}...");
                         System.Threading.Thread.Sleep(1000);

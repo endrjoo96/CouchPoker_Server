@@ -42,7 +42,7 @@ namespace CouchPoker_Server
         private STATUS _status = STATUS.NEW_GAME;
         private TcpClient _tcpClient = null;
 
-        public Card[] cards = new Card[2];
+        public Card[] cards;
 
         private bool _isDealer;
         public bool IsDealer {
@@ -193,11 +193,7 @@ namespace CouchPoker_Server
                     latestArgs = args;
                     Status = args.status;
                 });
-                /*
-                if (!MainWindow.dispatcher.CheckAccess())
-                    MainWindow.dispatcher.Invoke(() => { Status = args.status; });
-                else
-                    Status = args.status;*/
+
             }
             Console.WriteLine($"{Username} makes {args.message}");
         }

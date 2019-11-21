@@ -45,21 +45,60 @@ namespace CouchPoker_Server
                 new UserHandler(UserSlot_6, new UserData()),
                 new UserHandler(UserSlot_7, new UserData())
             };
-
-            var myCards = new List<Card>() {
-                new Card(CARD.CLUBS, CARD._A),
+            /*
+            usedCards = new List<Card>()
+            {
+                new Card(CARD.DIAMONDS, CARD._A),
                 new Card(CARD.CLUBS, CARD._7),
                 new Card(CARD.DIAMONDS, CARD._K),
-                new Card(CARD.SPADES, CARD._7),
-                new Card(CARD.HEARTS, CARD._K),
-                new Card(CARD.CLUBS, CARD._K),
-                new Card(CARD.DIAMONDS, CARD._9)
+                new Card(CARD.SPADES, CARD._8),
+                new Card(CARD.DIAMONDS, CARD._Q)
             };
-            Set s = new Set(myCards);
+/*
+            var myCards = new List<Card>(usedCards);
 
-            for (int i = 0; i < 7; i++) { usedCards.Add(GetRandomCardSafely()); }
-            Set s2 = new Set(usedCards);
+            List<Set> sets = new List<Set>();
 
+            var cards = new List<Card>(myCards); 
+            usedCards.Add(new Card(CARD.DIAMONDS, CARD._8));
+            usedCards.Add(new Card(CARD.DIAMONDS, CARD._7));
+            cards.Add(usedCards[usedCards.Count - 1]);
+            cards.Add(usedCards[usedCards.Count - 2]);
+            Set s1 = new Set(new List<Card>(cards));
+            string msg2 = "Karty: ";
+            for (int a = 0; a < cards.Count; a++)
+            {
+                msg2 += $"{cards[a].Value}{cards[a].Color}, ";
+            }
+            msg2 += $"\nWykryta figura: {s1.Figure.ToString()}\nKarty układu: ";
+            for (int a = 0; a < s1.cardsSet.Count; a++)
+            {
+                msg2 += $"{s1.cardsSet[a].Value}{s1.cardsSet[a].Color}, ";
+            }
+            MessageBox.Show(msg2);
+
+            for (int i=0;i<10;)
+            {
+                List<Card> c = new List<Card>(myCards);
+                usedCards.Add(GetRandomCardSafely());
+                usedCards.Add(GetRandomCardSafely());
+                c.Add(usedCards[usedCards.Count - 1]);
+                c.Add(usedCards[usedCards.Count - 2]);
+                Set set = new Set(new List<Card>(c));
+                sets.Add(set);
+                string msg = "Karty: ";
+                for(int a=0; a<c.Count; a++)
+                {
+                    msg += $"{c[a].Value}{c[a].Color}, ";
+                }
+                msg += $"\nWykryta figura: {set.Figure.ToString()}\nKarty układu: ";
+                for (int a = 0; a < set.cardsSet.Count; a++)
+                {
+                    msg += $"{set.cardsSet[a].Value}{set.cardsSet[a].Color}, ";
+                }
+                MessageBox.Show(msg);
+                i++;
+            }*/
 
             JoiningManagement.Run(users, usersHistory);
 

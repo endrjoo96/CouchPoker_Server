@@ -45,25 +45,23 @@ namespace CouchPoker_Server
                 new UserHandler(UserSlot_6, new UserData()),
                 new UserHandler(UserSlot_7, new UserData())
             };
-            /*
+            
             usedCards = new List<Card>()
             {
-                new Card(CARD.DIAMONDS, CARD._A),
-                new Card(CARD.CLUBS, CARD._7),
-                new Card(CARD.DIAMONDS, CARD._K),
-                new Card(CARD.SPADES, CARD._8),
-                new Card(CARD.DIAMONDS, CARD._Q)
+                new Card(CARD.HEARTS, CARD._A),
+                new Card(CARD.DIAMONDS, CARD._2),
+                new Card(CARD.CLUBS, CARD._3),
+                new Card(CARD.SPADES, CARD._4),
+                new Card(CARD.DIAMONDS, CARD._5),
             };
-/*
+
+            var backupUserCardsList = new List<Card>(usedCards);
+
             var myCards = new List<Card>(usedCards);
 
             List<Set> sets = new List<Set>();
 
             var cards = new List<Card>(myCards); 
-            usedCards.Add(new Card(CARD.DIAMONDS, CARD._8));
-            usedCards.Add(new Card(CARD.DIAMONDS, CARD._7));
-            cards.Add(usedCards[usedCards.Count - 1]);
-            cards.Add(usedCards[usedCards.Count - 2]);
             Set s1 = new Set(new List<Card>(cards));
             string msg2 = "Karty: ";
             for (int a = 0; a < cards.Count; a++)
@@ -77,7 +75,32 @@ namespace CouchPoker_Server
             }
             MessageBox.Show(msg2);
 
-            for (int i=0;i<10;)
+            string msg;
+            do
+            {
+                usedCards = new List<Card>(backupUserCardsList);
+                List<Card> c = new List<Card>(myCards);
+                usedCards.Add(GetRandomCardSafely());
+                usedCards.Add(GetRandomCardSafely());
+                c.Add(usedCards[usedCards.Count - 1]);
+                c.Add(usedCards[usedCards.Count - 2]);
+                Set set = new Set(new List<Card>(c));
+                sets.Add(set);
+                msg = "Karty: ";
+                for (int a = 0; a < c.Count; a++)
+                {
+                    msg += $"{c[a].Value}{c[a].Color}, ";
+                }
+                msg += $"\nWykryta figura: {set.Figure.ToString()}\nKarty układu: ";
+                for (int a = 0; a < set.cardsSet.Count; a++)
+                {
+                    msg += $"{set.cardsSet[a].Value}{set.cardsSet[a].Color}, ";
+                }
+            } while (MessageBox.Show(msg, "Karty", MessageBoxButton.OKCancel) == MessageBoxResult.OK);
+
+            throw new NotImplementedException("dosc");
+
+            /*for (int i=0;i<10;)
             {
                 List<Card> c = new List<Card>(myCards);
                 usedCards.Add(GetRandomCardSafely());

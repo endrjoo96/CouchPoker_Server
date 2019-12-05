@@ -198,7 +198,11 @@ namespace CouchPoker_Server
                     {
                         for (int i = 0; i < cardsSet.Count - 4; i++)
                         {
-                            for (int j = i; j < i + 4; j++)
+                            if (cardsSet.Count >= 5 && IsStraight(cardsSet, out dynamicList))
+                            {
+                                break;
+                            }
+                            /*for (int j = i; j < i + 4; j++)
                             {
                                 if (cardsSet[j].Value_Enum == cardsSet[j + 1].Value_Enum + 1)
                                 {
@@ -206,7 +210,7 @@ namespace CouchPoker_Server
                                     if (!dynamicList.Contains(cardsSet[j + 1])) dynamicList.Add(cardsSet[j + 1]);
                                 }
                                 else if (j == i &&
-                                    (cardsSet[j].Value_Enum == VALUE._A && cardsSet[j + 4].Value_Enum == VALUE._2))
+                                    (cardsSet[0].Value_Enum == VALUE._A && CollectionContainsCardWithValue(cardsSet.ToArray(), VALUE._5) && cardsSet[cardsSet.Count - 1].Value_Enum == VALUE._2))
                                 {
                                     if (!dynamicList.Contains(cardsSet[j])) dynamicList.Add(cardsSet[j]);
                                     if (!dynamicList.Contains(cardsSet[0])) dynamicList.Add(cardsSet[0]);
@@ -215,15 +219,14 @@ namespace CouchPoker_Server
                                 else dynamicList.Clear();
 
 
-                            }
-                            if (dynamicList.Count == 5) break;
+                            }*/
+                            //if (dynamicList.Count == 5) break;
                         }
 
                         break;
                     }
                     case FIGURE.POKER:
                     {
-
                         for (int i = 0; i < cardsSet.Count - 4; i++)
                         {
                             List<Card>[] cards = new List<Card>[]
@@ -233,18 +236,19 @@ namespace CouchPoker_Server
                             new List<Card>(),
                             new List<Card>()
                             };
-                                for (int x = 0; x < cardsSet.Count; x++)
-                                {
-                                    if (cardsSet[x].Color == CARD.HEARTS) cards[0].Add(cardsSet[x]);
-                                    else if (cardsSet[x].Color == CARD.DIAMONDS) cards[0].Add(cardsSet[x]);
-                                    else if (cardsSet[x].Color == CARD.CLUBS) cards[0].Add(cardsSet[x]);
-                                    else if (cardsSet[x].Color == CARD.SPADES) cards[0].Add(cardsSet[x]);
-                                }
+                            for (int x = 0; x < i + 5; x++)
+                            {
+                                if (cardsSet[x].Color == CARD.HEARTS) cards[0].Add(cardsSet[x]);
+                                else if (cardsSet[x].Color == CARD.DIAMONDS) cards[1].Add(cardsSet[x]);
+                                else if (cardsSet[x].Color == CARD.CLUBS) cards[2].Add(cardsSet[x]);
+                                else if (cardsSet[x].Color == CARD.SPADES) cards[3].Add(cardsSet[x]);
+                            }
 
-                            
+
                             foreach (var internalCardSet in cards)
                             {
-                                for (int x = 0; x < internalCardSet.Count - 4; x++)
+                                if (internalCardSet.Count >= 5 && IsStraight(internalCardSet, out dynamicList)) { }
+                                /*for (int x = 0; x < internalCardSet.Count - 4; x++)
                                 {
                                     for (int j = x; j < x + 4; j++)
                                     {
@@ -254,23 +258,25 @@ namespace CouchPoker_Server
                                             if (!dynamicList.Contains(internalCardSet[j + 1])) dynamicList.Add(internalCardSet[j + 1]);
                                         }
                                         else if (j == x &&
-                                            (cardsSet[j].Value_Enum == VALUE._A && cardsSet[j + 4].Value_Enum == VALUE._2))
+                                            (cardsSet[0].Value_Enum == VALUE._A && CollectionContainsCardWithValue(cardsSet.ToArray(), VALUE._5) && cardsSet[cardsSet.Count - 1].Value_Enum == VALUE._2))
                                         {
                                             if (!dynamicList.Contains(internalCardSet[j])) dynamicList.Add(internalCardSet[j]);
                                             if (!dynamicList.Contains(internalCardSet[0])) dynamicList.Add(internalCardSet[0]);
                                         }
 
-                                        else dynamicList.Clear();
-
-
+                                        else
+                                        {
+                                            dynamicList.Clear();
+                                            break;
+                                        }
                                     }
-                                    if (dynamicList.Count == 5) break;
-                                }
+                                }*/
                             }
-
-
+                            if (dynamicList.Count == 5) break;
 
                         }
+
+
                         break;
                     }
                     case FIGURE.ROYAL_POKER:
@@ -301,28 +307,30 @@ namespace CouchPoker_Server
                                 }
                             }
                         }
-
-
                         break;
                     }
 
-
-
-
                 }
 
-                if ((Figure == FIGURE.STRAIGHT ||
-                     Figure == FIGURE.POKER)
-                    &&
-                    (dynamicList[0].Value_Enum == VALUE._A &&
-                     dynamicList[4].Value_Enum == VALUE._2))
+                try
                 {
-                    var templist = new List<Card>(dynamicList);
-                    for (int a = 0; a < 4; a++)
+                    if ((Figure == FIGURE.STRAIGHT ||
+                         Figure == FIGURE.POKER)
+                        &&
+                        (dynamicList[0].Value_Enum == VALUE._A &&
+                         dynamicList[4].Value_Enum == VALUE._2))
                     {
-                        dynamicList[a] = templist[a + 1];
+                        var templist = new List<Card>(dynamicList);
+                        for (int a = 0; a < 4; a++)
+                        {
+                            dynamicList[a] = templist[a + 1];
+                        }
+                        dynamicList[4] = templist[0];
+
                     }
-                    dynamicList[4] = templist[0];
+                }
+                catch (ArgumentOutOfRangeException aoorex)
+                {
 
                 }
 
@@ -391,18 +399,16 @@ namespace CouchPoker_Server
 
 
             bool straight = false;
-            int from = 0;
             for (int i = 0; i < cardsSet.Count - 4; i++)
             {
                 for (int j = i; j < i + 4; j++)
                 {
-
-                    if (j == i &&
-                        (cardsSet[j].Value_Enum == VALUE._A && cardsSet[j + 4].Value_Enum == VALUE._2))
+                    if (cardsSet[j].Value_Enum == cardsSet[j + 1].Value_Enum + 1)
                     {
                         straight = true;
                     }
-                    else if (cardsSet[j].Value_Enum == cardsSet[j + 1].Value_Enum + 1)
+                    else if (j == i &&
+                        (cardsSet[0].Value_Enum == VALUE._A && CollectionContainsCardWithValue(cardsSet.ToArray(), VALUE._5) && cardsSet[cardsSet.Count - 1].Value_Enum == VALUE._2))
                     {
                         straight = true;
                     }
@@ -414,81 +420,80 @@ namespace CouchPoker_Server
                 }
                 if (straight)
                 {
-                    from = i;
                     detectedFigures.Add(FIGURE.STRAIGHT);
                     break;
                 }
             }
             if (straight)
             {
-                for (int i = 0; i < cardsSet.Count - 4; i++)
+
+                List<Card>[] cards = new List<Card>[]
                 {
-                    List<Card>[] cards = new List<Card>[]
-                    {
                             new List<Card>(),
                             new List<Card>(),
                             new List<Card>(),
                             new List<Card>()
-                    };
+                };
 
-                    for (int x = 0; x < cardsSet.Count; x++)
+                for (int x = 0; x < cardsSet.Count; x++)
+                {
+                    if (cardsSet[x].Color == CARD.HEARTS) cards[0].Add(cardsSet[x]);
+                    else if (cardsSet[x].Color == CARD.DIAMONDS) cards[1].Add(cardsSet[x]);
+                    else if (cardsSet[x].Color == CARD.CLUBS) cards[2].Add(cardsSet[x]);
+                    else if (cardsSet[x].Color == CARD.SPADES) cards[3].Add(cardsSet[x]);
+                }
+
+
+                foreach (var l in cards)
+                {
+                    if (l.Count >= 5)
                     {
-                        if (cardsSet[x].Color == CARD.HEARTS) cards[0].Add(cardsSet[x]);
-                        else if (cardsSet[x].Color == CARD.DIAMONDS) cards[1].Add(cardsSet[x]);
-                        else if (cardsSet[x].Color == CARD.CLUBS) cards[2].Add(cardsSet[x]);
-                        else if (cardsSet[x].Color == CARD.SPADES) cards[3].Add(cardsSet[x]);
-                    }
-
-
-                    foreach (var l in cards)
-                    {
-                        if (l.Count >= 5)
+                        for (int e = 0; e < l.Count - 4; e++)
                         {
-                            for (int e = 0; e < l.Count - 4; e++)
+                            for (int j = e; j < e + 4; j++)
                             {
-                                for (int j = e; j < e + 4; j++)
+                                if (l[j].Value_Enum == l[j + 1].Value_Enum + 1)
                                 {
-
-                                    if (j == e &&
-                                        (l[j].Value_Enum == VALUE._A && l[j+4].Value_Enum == VALUE._2))
-                                    {
-                                        straight = true;
-                                    }
-                                    else if (l[j].Value_Enum == l[j + 1].Value_Enum + 1)
-                                    {
-                                        straight = true;
-                                    }
-                                    else
-                                    {
-                                        straight = false;
-                                    }
+                                    straight = true;
                                 }
-                                if (straight)
+                                else if (j == e &&
+                                    (l[0].Value_Enum == VALUE._A && CollectionContainsCardWithValue(l.ToArray(), VALUE._5) && l[l.Count - 1].Value_Enum == VALUE._2))
                                 {
-                                    detectedFigures.Add(FIGURE.POKER);
+                                    straight = true;
+                                }
+                                else
+                                {
+                                    straight = false;
                                     break;
                                 }
                             }
-                            straight = false;
-                            if (l[0].Value_Enum == VALUE._A)
+                            if (straight)
                             {
-                                for (int e = 0; e < l.Count - 1; e++)
-                                {
-                                    if (l[e].Value_Enum == l[e + 1].Value_Enum + 1) straight = true;
-                                    else
-                                    {
-                                        straight = false;
-                                        break;
-                                    }
-                                }
-                                if (straight) detectedFigures.Add(FIGURE.ROYAL_POKER);
+                                detectedFigures.Add(FIGURE.POKER);
+                                break;
                             }
-
-
-
                         }
+                        straight = false;
+                        if (l[0].Value_Enum == VALUE._A)
+                        {
+                            for (int e = 0; e < 4; e++)
+                            {
+                                if (l[e].Value_Enum == l[e + 1].Value_Enum + 1) straight = true;
+                                else
+                                {
+                                    straight = false;
+                                    break;
+                                }
+                            }
+                            if (straight)
+                                detectedFigures.Add(FIGURE.ROYAL_POKER);
+                        }
+
+
+
                     }
                 }
+
             }
             List<Card>[] flushCards = new List<Card>[]
                     {
@@ -534,7 +539,88 @@ namespace CouchPoker_Server
             }
         }*/
 
+        private static bool CollectionContainsCardWithValue(Card[] collection, VALUE val)
+        {
+            foreach (Card c in collection)
+            {
+                if (c.Value_Enum == val) return true;
+            }
+            return false;
+        }
 
+
+
+
+
+
+
+
+        #region figures_detection_functions
+
+        private static bool IsStraight(List<Card> set, out List<Card> figureCards)
+        {
+            figureCards = new List<Card>();
+            bool straight = false;
+            int from = -1;
+            if (set.Count < 5) return straight;
+            for (int i = 0; i < set.Count - 4; i++)
+            {
+                for (int j = i; j < i + 4; j++)
+                {
+                    if (set[j].Value_Enum == set[j + 1].Value_Enum + 1)
+                    {
+                        straight = true;
+                    }
+                    else if (j == i &&
+                        (set[0].Value_Enum == VALUE._A &&
+                        CollectionContainsCardWithValue(set.ToArray(), VALUE._5) &&
+                        set[set.Count - 1].Value_Enum == VALUE._2))
+                    {
+                        straight = true;
+                    }
+                    else
+                    {
+                        straight = false;
+                        break;
+                    }
+                }
+                if (straight)
+                {
+                    from = i;
+                    break;
+                }
+            }
+            if (from != -1)
+            {
+                for (int index = from; index < from + 4; index++)
+                {
+                    if (set[index].Value_Enum == set[index + 1].Value_Enum + 1)
+                    {
+                        if (!figureCards.Contains(set[index])) figureCards.Add(set[index]);
+                        if (!figureCards.Contains(set[index + 1])) figureCards.Add(set[index + 1]);
+                    }
+                    else if (index == from && (
+                            set[0].Value_Enum == VALUE._A &&
+                            set[set.Count - 1].Value_Enum == VALUE._2 &&
+                            CollectionContainsCardWithValue(set.ToArray(), VALUE._5)))
+                    {
+                        if (!figureCards.Contains(set[0])) figureCards.Add(set[0]);
+                        if (!figureCards.Contains(set[index + 1])) figureCards.Add(set[index + 1]);
+                    }
+                }
+            }
+            return straight;
+        }
+
+        private static bool IsStraight(List<Card> set)
+        {
+            var dummy = new List<Card>();
+            return IsStraight(set, out dummy);
+        }
+
+
+
+        #endregion
     }
     public class Card
     {

@@ -60,7 +60,9 @@
     <Compile Include="Gamemodes\IGamemode.cs" />
     <Compile Include="Gamemodes\TexasHoldEm.cs" />
     <Compile Include="Management\JoiningManagement.cs" />
+    <Compile Include="Misc\Networking.cs" />
     <Compile Include="Misc\Threading.cs" />
+    <Compile Include="Networking\Broadcaster.cs" />
     <Compile Include="Networking\Receiver.cs" />
     <Compile Include="Networking\Connector.cs" />
     <Compile Include="Player\DealerHandler.cs" />

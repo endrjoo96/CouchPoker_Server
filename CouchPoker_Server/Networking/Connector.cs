@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using static CouchPoker_Server.Misc.Networking;
 
 namespace CouchPoker_Server.Networking
 {
@@ -30,7 +31,7 @@ namespace CouchPoker_Server.Networking
 
                     Console.WriteLine($"polaczenie z {acceptedClient.Client.RemoteEndPoint}");
 
-                    string msg = GetResponseFromRemote(acceptedClient, "send me ur uid");
+                    string msg = GetResponseFromRemote(acceptedClient, "SEND_ID");
                     if (msg == null)
                     {
                         listener.Stop();
@@ -45,7 +46,7 @@ namespace CouchPoker_Server.Networking
                             foundInHistory = true;
                             MainWindow.dispatcher.Invoke(() =>
                             {
-                                user.tcpClient = acceptedClient;
+                                user.RemoteClient = acceptedClient;
                                 user.UserData = usr;
                                 user.IsReconnecting = true;
                             });
@@ -54,57 +55,21 @@ namespace CouchPoker_Server.Networking
                     if (!foundInHistory)
                     {
                         string uid = msg;
-                        msg = GetResponseFromRemote(acceptedClient, "ur nickname");
+                        msg = GetResponseFromRemote(acceptedClient, "SEND_NICKNAME");
                         MainWindow.dispatcher.Invoke(() =>
                         {
                             user.UserData = new UserData(uid, msg, 10000);
-                            user.tcpClient = acceptedClient;
+                            user.RemoteClient = acceptedClient;
                             user.IsReconnecting = false;
                         });
                     }
                     break;
                 }
-
-
-
-
-
-
-
-
-
-                /*while (true)
-                {
-                    byte[] buffer = new byte[acceptedClient.ReceiveBufferSize];
-                    int data = ns.Read(buffer, 0, acceptedClient.ReceiveBufferSize);
-
-                    if (data == 0) break;
-
-                    string message = Encoding.UTF8.GetString(buffer, 0, data);
-                    Console.WriteLine("wiadomosc: " + message);
-                }
-                Console.WriteLine($"Klient {acceptedClient.Client.RemoteEndPoint} rozlaczyl sie, nasluchuje nowego klienta...");
-                acceptedClient = null;
-                ns.Dispose();
-                listener.Stop();*/
-
             });
             t.Start();
             return t;
         }
 
-        private static string GetResponseFromRemote(TcpClient client, string question)
-        {
-            byte[] message = Encoding.UTF8.GetBytes(question);
-            client.GetStream().Write(message, 0, message.Length);
-
-            byte[] buffer = new byte[client.ReceiveBufferSize];
-            int data = client.GetStream().Read(buffer, 0, client.ReceiveBufferSize);
-
-            if (data == 0) return null;
-
-            string msg = Encoding.UTF8.GetString(buffer, 0, data);
-            return msg;
-        }
+        
     }
 }

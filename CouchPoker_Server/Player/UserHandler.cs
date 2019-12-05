@@ -25,11 +25,9 @@ namespace CouchPoker_Server
         public bool IsPlaying { get; set; }
 
         private UserData _userData;
-        public UserData UserData
-        {
+        public UserData UserData {
             get { return _userData; }
-            set
-            {
+            set {
                 _userData = value;
                 UID = value.uID;
                 Username = value.username;
@@ -40,51 +38,54 @@ namespace CouchPoker_Server
         private Controls.User user = null;
         private Receiver receiver;
         private STATUS _status = STATUS.NEW_GAME;
-        private TcpClient _tcpClient = null;
+        private TcpClient _remoteClient = null;
+        private Set _currentSet;
 
         public Card[] cards;
+        public Set CurrentSet {
+            get {
+                return _currentSet;
+            }
+            set {
+                _currentSet = value;
+                Send_CurrentFigure();
+            }
+        }
 
         private bool _isDealer;
         public bool IsDealer {
             get { return _isDealer; }
-            set { 
+            set {
                 _isDealer = value;
-                user.IsDealer.Visibility = 
+                user.IsDealer.Visibility =
                     value ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
             }
         }
-        public bool IsReconnecting
-        {
+        public bool IsReconnecting {
             get; set;
         }
-        public bool IsActive
-        {
-            get
-            {
-                if (_tcpClient == null || Username == null) return false;
+        public bool IsActive {
+            get {
+                if (_remoteClient == null || Username == null) return false;
                 else return true;
             }
         }
-        public TcpClient tcpClient
-        {
-            get { return _tcpClient; }
-            set
-            {
-                _tcpClient = value;
-                if (_tcpClient != null)
+        public TcpClient RemoteClient {
+            get { return _remoteClient; }
+            set {
+                _remoteClient = value;
+                if (_remoteClient != null)
                 {
-                    receiver.BeginReceive(_tcpClient);
+                    receiver.BeginReceive(_remoteClient);
                 }
                 else receiver.StopReceiving();
 
             }
         }
 
-        public string Username
-        {
+        public string Username {
             get { return _userData.username; }
-            set
-            {
+            set {
                 if (value == null || value == "")
                 {
                     user.Username.Content = value;
@@ -97,59 +98,54 @@ namespace CouchPoker_Server
                 }
             }
         }
-        public int TotalBallance
-        {
+        public int TotalBallance {
             get { return _userData.ballance; }
-            set
-            {
+            set {
                 user.Total.Content = value.ToString();
                 _userData.ballance = value;
             }
         }
-        public int CurrentBet
-        {
+        public int CurrentBet {
             get { return Int32.Parse(user.Current.Content.ToString()); }
             set { user.Current.Content = value.ToString(); }
         }
-        public STATUS Status
-        {
+        public STATUS Status {
             get { return _status; }
-            set
-            {
+            set {
                 switch (value)
                 {
                     case STATUS.FOLD:
-                        {
-                            ChangeColor(new SolidColorBrush(Colors.Gray));
-                            user.Action.Content = value;
-                            break;
-                        }
+                    {
+                        ChangeColor(new SolidColorBrush(Colors.Gray));
+                        user.Action.Content = value;
+                        break;
+                    }
                     case STATUS.BET:
                     case STATUS.CHECK:
-                        {
-                            ChangeColor(new SolidColorBrush(Colors.White));
-                            user.Action.Content = value;
-                            break;
-                        }
+                    {
+                        ChangeColor(new SolidColorBrush(Colors.White));
+                        user.Action.Content = value;
+                        break;
+                    }
                     case STATUS.NO_ACTION:
                     case STATUS.NEW_GAME:
-                        {
-                            ChangeColor(new SolidColorBrush(Colors.White));
-                            user.Action.Content = "";
-                            break;
-                        }
+                    {
+                        ChangeColor(new SolidColorBrush(Colors.White));
+                        user.Action.Content = "";
+                        break;
+                    }
                     case STATUS.MY_TURN:
-                        {
-                            ChangeColor(new SolidColorBrush(Colors.White));
-                            user.Username.Foreground = new SolidColorBrush(Colors.Yellow);
-                            user.Action.Content = "";
-                            break;
-                        }
+                    {
+                        ChangeColor(new SolidColorBrush(Colors.White));
+                        user.Username.Foreground = new SolidColorBrush(Colors.Yellow);
+                        user.Action.Content = "";
+                        break;
+                    }
                     case STATUS.DEALER:
-                        {
-                            IsDealer = true;
-                            break;
-                        }
+                    {
+                        IsDealer = true;
+                        break;
+                    }
                 }
                 _status = value;
             }
@@ -189,7 +185,8 @@ namespace CouchPoker_Server
             DataReceived?.Invoke(args);
             if (Status == STATUS.MY_TURN && args.status != STATUS.NO_ACTION)
             {
-                InvokeIfRequired(() => {
+                InvokeIfRequired(() =>
+                {
                     latestArgs = args;
                     Status = args.status;
                 });
@@ -216,10 +213,10 @@ namespace CouchPoker_Server
                 MainWindow.NotEnoughPlayers();
             }
             if (IsPlaying) Status = STATUS.FOLD;
-            while(IsPlaying) { System.Threading.Thread.Sleep(1000); }
+            while (IsPlaying) { System.Threading.Thread.Sleep(1000); }
             MainWindow.usersHistory.Add(new UserData(_userData));
             UserData = default;
-            _tcpClient = null;
+            _remoteClient = null;
 
         }
 
@@ -228,6 +225,8 @@ namespace CouchPoker_Server
             this.cards = cards;
             user.CARD_1.Source = new BitmapImage(new Uri(CARD.reverse, UriKind.Relative));
             user.CARD_2.Source = new BitmapImage(new Uri(CARD.reverse, UriKind.Relative));
+
+            Send_Cards(cards);
         }
 
         public void RevealCards()
@@ -243,6 +242,37 @@ namespace CouchPoker_Server
                 MainWindow.dispatcher.Invoke(action);
             }
             else action.Invoke();
+        }
+
+        private void SendMessage(string msg)
+        {
+            Misc.Networking.SendToRemote(RemoteClient, msg);
+        }
+        public void Send_StartSignal()
+        {
+            SendMessage("\nSTARTED_NEW_ROUND");
+        }
+
+        private void Send_Cards(Card[] cards)
+        {
+            SendMessage($"\nSENDING_CARDS|{cards.Length}");
+            foreach (Card c in cards)
+            {
+                SendMessage($"\n{c.Value}|{c.Color}");
+            }
+        }
+
+        public void Send_GameInfo(int checkValue, int bigBlindValue)
+        {
+            SendMessage($"\nYOUR_BALLANCE|{TotalBallance}");
+            SendMessage($"\nYOUR_BET|{CurrentBet}");
+            SendMessage($"\nCHECK_VALUE|{checkValue}");
+            SendMessage($"\nBIG_BLIND|{bigBlindValue}");
+        }
+
+        public void Send_CurrentFigure()
+        {
+            SendMessage($"\nYOUR_FIGURE|{CurrentSet.Figure}");
         }
     }
 }

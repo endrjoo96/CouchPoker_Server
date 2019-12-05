@@ -1,4 +1,5 @@
 ﻿using CouchPoker_Server.Management;
+using CouchPoker_Server.Networking;
 using CouchPoker_Server.Player;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,9 @@ namespace CouchPoker_Server
         public static List<UserHandler> users;
         public static List<UserData> usersHistory;
         public static List<Card> usedCards;
+        public List<Card> publicCards;
         public Task gameTask;
+        public Broadcaster broadcaster;
         public static CancellationTokenSource cts;
         int blindValue = 20;
 
@@ -46,13 +49,15 @@ namespace CouchPoker_Server
                 new UserHandler(UserSlot_7, new UserData())
             };
             
-            usedCards = new List<Card>()
-            {
-                new Card(CARD.HEARTS, CARD._A),
-                new Card(CARD.DIAMONDS, CARD._2),
-                new Card(CARD.CLUBS, CARD._3),
-                new Card(CARD.SPADES, CARD._4),
-                new Card(CARD.DIAMONDS, CARD._5),
+            /*usedCards = new List<Card>()
+            {           // 4C  5H  6D  7C  8H  3D  QC
+                new Card(CARD.CLUBS, CARD._4),
+                new Card(CARD.HEARTS, CARD._5),
+                new Card(CARD.DIAMONDS, CARD._6),
+                new Card(CARD.CLUBS, CARD._7),
+                new Card(CARD.HEARTS, CARD._8),
+                new Card(CARD.SPADES, CARD._3),
+                new Card(CARD.CLUBS, CARD._Q),
             };
 
             var backupUserCardsList = new List<Card>(usedCards);
@@ -97,8 +102,7 @@ namespace CouchPoker_Server
                     msg += $"{set.cardsSet[a].Value}{set.cardsSet[a].Color}, ";
                 }
             } while (MessageBox.Show(msg, "Karty", MessageBoxButton.OKCancel) == MessageBoxResult.OK);
-
-            throw new NotImplementedException("dosc");
+            */
 
             /*for (int i=0;i<10;)
             {
@@ -124,6 +128,7 @@ namespace CouchPoker_Server
             }*/
 
             JoiningManagement.Run(users, usersHistory);
+            broadcaster = new Broadcaster();
 
             RunGame();
         }
@@ -144,26 +149,27 @@ namespace CouchPoker_Server
             {
                 case GAME_MOMENT.FLOP:
                     {
-                        choosedCards.Flop_1.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative));
-                        choosedCards.Flop_2.Source = new BitmapImage(new Uri(cards[1].Path, UriKind.Relative));
-                        choosedCards.Flop_3.Source = new BitmapImage(new Uri(cards[2].Path, UriKind.Relative));
+                        choosedCards.Flop_1.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative)); publicCards.Add(cards[0]);
+                        choosedCards.Flop_2.Source = new BitmapImage(new Uri(cards[1].Path, UriKind.Relative)); publicCards.Add(cards[1]);
+                        choosedCards.Flop_3.Source = new BitmapImage(new Uri(cards[2].Path, UriKind.Relative)); publicCards.Add(cards[2]);
                         break;
                     }
                 case GAME_MOMENT.TURN:
                     {
 
-                        choosedCards.Turn.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative));
-                        break;
+                        choosedCards.Turn.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative)); publicCards.Add(cards[0]);
+                    break;
                     }
                 case GAME_MOMENT.RIVER:
                     {
 
-                        choosedCards.River.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative));
-                        break;
+                        choosedCards.River.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative)); publicCards.Add(cards[0]);
+                    break;
                     }
                 case GAME_MOMENT.PREFLOP:
                     {
-                        ImageSource src = new BitmapImage(new Uri(CARD.reverse, UriKind.Relative));
+                    publicCards = new List<Card>();
+                    ImageSource src = new BitmapImage(new Uri(CARD.reverse, UriKind.Relative));
                         choosedCards.Flop_1.Source = src;
                         choosedCards.Flop_2.Source = src;
                         choosedCards.Flop_3.Source = src;
@@ -206,7 +212,7 @@ namespace CouchPoker_Server
                                 u.IsPlaying = true;
                                 u.IsDealer = false;
                                 u.Status = STATUS.NEW_GAME;
-
+                                u.Send_StartSignal();
                             });
                         }
                         InvokeIfRequired(() => { usedCards = new List<Card>(); });
@@ -233,19 +239,19 @@ namespace CouchPoker_Server
                                     }
                                 case GAME_MOMENT.FLOP:
                                     {
-                                        Dispatcher.Invoke(() => { ExecuteFlop(); });
+                                        Dispatcher.Invoke(() => { ExecuteFlop(currentUsers); });
 
                                         break;
                                     }
                                 case GAME_MOMENT.TURN:
                                     {
-                                        Dispatcher.Invoke(() => { ExecuteTurn(); });
+                                        Dispatcher.Invoke(() => { ExecuteTurn(currentUsers); });
 
                                         break;
                                     }
                                 case GAME_MOMENT.RIVER:
                                     {
-                                        Dispatcher.Invoke(() => { ExecuteRiver(); });
+                                        Dispatcher.Invoke(() => { ExecuteRiver(currentUsers); });
 
                                         break;
                                     }
@@ -356,7 +362,7 @@ namespace CouchPoker_Server
                         {
                             InvokeIfRequired(() =>
                             {
-
+                                u.Send_GameInfo(checkValue, blindValue);
                                 u.Status = STATUS.MY_TURN;
                             });
                             while (u.Status == STATUS.MY_TURN)
@@ -461,7 +467,7 @@ namespace CouchPoker_Server
             }
         }
 
-        private void ExecuteFlop()
+        private void ExecuteFlop(List<UserHandler> currentUsers)
         {
             for (int i = 0; i < 3; i++) { usedCards.Add(GetRandomCardSafely()); }
             SetCards(GAME_MOMENT.FLOP, new Card[]
@@ -470,24 +476,45 @@ namespace CouchPoker_Server
                 usedCards[usedCards.Count-2],
                 usedCards[usedCards.Count-1]
             });
+            foreach(UserHandler u in currentUsers)
+            {
+                List<Card> cards = new List<Card>(publicCards);
+                cards.Add(u.cards[0]);
+                cards.Add(u.cards[1]);
+                u.CurrentSet = new Set(cards);
+            }
         }
 
-        private void ExecuteTurn()
+        private void ExecuteTurn(List<UserHandler> currentUsers)
         {
             usedCards.Add(GetRandomCardSafely());
             SetCards(GAME_MOMENT.TURN, new Card[]
             {
                 usedCards[usedCards.Count-1]
             });
+            foreach (UserHandler u in currentUsers)
+            {
+                List<Card> cards = new List<Card>(publicCards);
+                cards.Add(u.cards[0]);
+                cards.Add(u.cards[1]);
+                u.CurrentSet = new Set(cards);
+            }
         }
 
-        private void ExecuteRiver()
+        private void ExecuteRiver(List<UserHandler> currentUsers)
         {
             usedCards.Add(GetRandomCardSafely());
             SetCards(GAME_MOMENT.RIVER, new Card[]
             {
                 usedCards[usedCards.Count-1]
             });
+            foreach (UserHandler u in currentUsers)
+            {
+                List<Card> cards = new List<Card>(publicCards);
+                cards.Add(u.cards[0]);
+                cards.Add(u.cards[1]);
+                u.CurrentSet = new Set(cards);
+            }
         }
 
         private void ExecuteShow(List<UserHandler> currentUsers)

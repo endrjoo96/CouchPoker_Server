@@ -50,6 +50,7 @@ namespace CouchPoker_Server.Networking
                                 user.UserData = usr;
                                 user.IsReconnecting = true;
                             });
+                            SendToRemote(acceptedClient, $"HI_{usr.username}");
                         }
                     }
                     if (!foundInHistory)

@@ -14,7 +14,7 @@ namespace CouchPoker_Server
 {
     public enum STATUS
     {
-        CHECK, BET, FOLD, NO_ACTION, NEW_GAME, MY_TURN, ALL_IN, SMALL_BLIND, BIG_BLIND, DEALER
+        CHECK, RAISE, FOLD, NO_ACTION, NEW_GAME, MY_TURN, ALL_IN, SMALL_BLIND, BIG_BLIND, DEALER
     }
 
     public class UserHandler
@@ -120,7 +120,7 @@ namespace CouchPoker_Server
                         user.Action.Content = value;
                         break;
                     }
-                    case STATUS.BET:
+                    case STATUS.RAISE:
                     case STATUS.CHECK:
                     {
                         ChangeColor(new SolidColorBrush(Colors.White));
@@ -139,6 +139,7 @@ namespace CouchPoker_Server
                         ChangeColor(new SolidColorBrush(Colors.White));
                         user.Username.Foreground = new SolidColorBrush(Colors.Yellow);
                         user.Action.Content = "";
+                        
                         break;
                     }
                     case STATUS.DEALER:
@@ -250,29 +251,34 @@ namespace CouchPoker_Server
         }
         public void Send_StartSignal()
         {
-            SendMessage("\nSTARTED_NEW_ROUND");
+            SendMessage("STARTED_NEW_ROUND");
         }
 
         private void Send_Cards(Card[] cards)
         {
-            SendMessage($"\nSENDING_CARDS|{cards.Length}");
+            SendMessage($"SENDING_CARDS|{cards.Length}");
             foreach (Card c in cards)
             {
-                SendMessage($"\n{c.Value}|{c.Color}");
+                SendMessage($"{c.Value}|{c.Color}");
             }
         }
 
         public void Send_GameInfo(int checkValue, int bigBlindValue)
         {
-            SendMessage($"\nYOUR_BALLANCE|{TotalBallance}");
-            SendMessage($"\nYOUR_BET|{CurrentBet}");
-            SendMessage($"\nCHECK_VALUE|{checkValue}");
-            SendMessage($"\nBIG_BLIND|{bigBlindValue}");
+            SendMessage($"YOUR_BALLANCE|{TotalBallance}");
+            SendMessage($"YOUR_BET|{CurrentBet}");
+            SendMessage($"CHECK_VALUE|{checkValue}");
+            SendMessage($"BIG_BLIND|{bigBlindValue}");
         }
 
         public void Send_CurrentFigure()
         {
-            SendMessage($"\nYOUR_FIGURE|{CurrentSet.Figure}");
+            SendMessage($"YOUR_FIGURE|{CurrentSet.Figure}");
+        }
+
+        private void Send_WaitingForMoveSignal()
+        {
+            SendMessage($"WAITING_FOR_YOUR_MOVE");
         }
     }
 }

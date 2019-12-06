@@ -25,10 +25,10 @@ namespace CouchPoker_Server.Networking
             this.message = message;
             if (message == "FOLD") status = STATUS.FOLD;
             else if (message == "CHECK") status = STATUS.CHECK;
-            else if (message.Contains("BET"))
+            else if (message.Contains("RAISE"))
             {
-                status = STATUS.BET;
-                value = Int32.Parse(message.Substring("BET".Length));
+                status = STATUS.RAISE;
+                value = Int32.Parse(message.Substring("RAISE".Length));
             }
         }
     }
@@ -54,21 +54,28 @@ namespace CouchPoker_Server.Networking
                 token.ThrowIfCancellationRequested();
                 while (true)
                 {
-                    byte[] buffer = new byte[client.ReceiveBufferSize];
-                    int data = client.GetStream().Read(buffer, 0, client.ReceiveBufferSize);
-                    if (data==0)
+                    try
+                    {
+                        byte[] buffer = new byte[client.ReceiveBufferSize];
+                        int data = client.GetStream().Read(buffer, 0, client.ReceiveBufferSize);
+                        if (data == 0)
+                        {
+                            ClientDisconnected?.Invoke();
+                            break;
+                        }
+                        string receivedMessage = Encoding.UTF8.GetString(buffer, 0, data);
+                        DataReceived?.Invoke(new DataReceivedEventArgs(receivedMessage));
+                        /*if (!MainWindow.dispatcher.CheckAccess())
+                            MainWindow.dispatcher.Invoke(() =>
+                            {
+                                DataReceived?.Invoke(new DataReceivedEventArgs(receivedMessage));
+                            });
+                        else DataReceived?.Invoke(new DataReceivedEventArgs(receivedMessage));*/
+                    } catch (Exception ex)
                     {
                         ClientDisconnected?.Invoke();
                         break;
                     }
-                    string receivedMessage = Encoding.UTF8.GetString(buffer,0, data);
-                    DataReceived?.Invoke(new DataReceivedEventArgs(receivedMessage));
-                    /*if (!MainWindow.dispatcher.CheckAccess())
-                        MainWindow.dispatcher.Invoke(() =>
-                        {
-                            DataReceived?.Invoke(new DataReceivedEventArgs(receivedMessage));
-                        });
-                    else DataReceived?.Invoke(new DataReceivedEventArgs(receivedMessage));*/
                 }
             }, cancellationTokenSource.Token);
 

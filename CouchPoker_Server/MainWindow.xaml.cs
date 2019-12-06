@@ -393,7 +393,7 @@ namespace CouchPoker_Server
                                         });
                                         break;
                                     }
-                                case STATUS.BET:
+                                case STATUS.RAISE:
                                     {
                                         checkedUsersCount = 1;
                                         InvokeIfRequired(() =>

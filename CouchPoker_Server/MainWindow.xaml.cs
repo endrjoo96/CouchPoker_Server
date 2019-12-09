@@ -184,7 +184,7 @@ namespace CouchPoker_Server
         short currentDealerIndex = 0;
         private async void RunGame()
         {
-            Task t = Task.Run(() =>
+            Task t = new Task(() =>
             {
                 currentDealerIndex = 0;
                 CancellationToken ct = cts.Token;
@@ -233,28 +233,28 @@ namespace CouchPoker_Server
                             switch (currentMoment)
                             {
                                 case GAME_MOMENT.PREFLOP:
-                                    {
-                                        Dispatcher.Invoke(() => { ExecutePreflop(currentUsers); });
-                                        break;
-                                    }
+                                {
+                                    Dispatcher.Invoke(() => { ExecutePreflop(currentUsers); });
+                                    break;
+                                }
                                 case GAME_MOMENT.FLOP:
-                                    {
-                                        Dispatcher.Invoke(() => { ExecuteFlop(currentUsers); });
+                                {
+                                    Dispatcher.Invoke(() => { ExecuteFlop(currentUsers); });
 
-                                        break;
-                                    }
+                                    break;
+                                }
                                 case GAME_MOMENT.TURN:
-                                    {
-                                        Dispatcher.Invoke(() => { ExecuteTurn(currentUsers); });
+                                {
+                                    Dispatcher.Invoke(() => { ExecuteTurn(currentUsers); });
 
-                                        break;
-                                    }
+                                    break;
+                                }
                                 case GAME_MOMENT.RIVER:
-                                    {
-                                        Dispatcher.Invoke(() => { ExecuteRiver(currentUsers); });
+                                {
+                                    Dispatcher.Invoke(() => { ExecuteRiver(currentUsers); });
 
-                                        break;
-                                    }
+                                    break;
+                                }
                             }
                             UserHandler potentialWinner = Bidd(currentUsers);
                             if (potentialWinner == null)
@@ -269,13 +269,14 @@ namespace CouchPoker_Server
                         foreach (UserHandler u in currentUsers) u.IsPlaying = false;
 
 
-                        
+
                         Console.WriteLine("Time to play...");
                         Console.WriteLine($"currently connected: {currentUsers.Count}...");
                         System.Threading.Thread.Sleep(1000);
                     } while (currentUsers.Count >= 2);
                 }
             }, cts.Token);
+            t.Start();
 
             try
             {
@@ -365,6 +366,7 @@ namespace CouchPoker_Server
                                 u.Send_GameInfo(checkValue, blindValue);
                                 u.Status = STATUS.MY_TURN;
                             });
+                            u.Send_WaitingForMoveSignal();
                             while (u.Status == STATUS.MY_TURN)
                             {
                                 if (u.IsActive)

@@ -128,6 +128,12 @@ namespace CouchPoker_Server
                         break;
                     }
                     case STATUS.NO_ACTION:
+                    {
+                        Send_GameInfo(0, 0);
+                        ChangeColor(new SolidColorBrush(Colors.White));
+                        user.Action.Content = "";
+                        break;
+                    }
                     case STATUS.NEW_GAME:
                     {
                         ChangeColor(new SolidColorBrush(Colors.White));
@@ -276,7 +282,7 @@ namespace CouchPoker_Server
             SendMessage($"YOUR_FIGURE|{CurrentSet.Figure}");
         }
 
-        private void Send_WaitingForMoveSignal()
+        public void Send_WaitingForMoveSignal()
         {
             SendMessage($"WAITING_FOR_YOUR_MOVE");
         }

@@ -8,17 +8,51 @@ namespace CouchPoker_Server.Player
 {
     public class DealerHandler
     {
+        public enum DEALER_STATE
+        {
+            SHOW_POT, SHOW_INFO
+        }
         private Controls.Dealer dealer;
         private int _pot;
-        public int Pot { 
-            get
-            {
+        public int Pot {
+            get {
                 return _pot;
             }
-            set
-            {
+            set {
                 _pot = value;
                 dealer.Pot.Content = value;
+            }
+        }
+
+        public string Message {
+            set {
+                if (State != DEALER_STATE.SHOW_INFO)
+                    State = DEALER_STATE.SHOW_INFO;
+                dealer.InfoLabel.Content = value;
+            }
+        }
+
+        private DEALER_STATE _state = DEALER_STATE.SHOW_POT;
+        public DEALER_STATE State {
+            private get { return _state; }
+            set {
+                _state = value;
+                switch (value)
+                {
+                    case DEALER_STATE.SHOW_INFO:
+                    {
+                        dealer.Dollar.Visibility = System.Windows.Visibility.Hidden;
+                        dealer.Pot.Visibility = System.Windows.Visibility.Hidden;
+                        break;
+                    }
+                    case DEALER_STATE.SHOW_POT:
+                    {
+                        dealer.Dollar.Visibility = System.Windows.Visibility.Visible;
+                        dealer.Pot.Visibility = System.Windows.Visibility.Visible;
+                        dealer.InfoLabel.Content = "Pot:";
+                        break;
+                    }
+                }
             }
         }
 

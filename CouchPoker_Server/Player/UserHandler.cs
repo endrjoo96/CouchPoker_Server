@@ -1,4 +1,5 @@
-﻿using CouchPoker_Server.Networking;
+﻿using CouchPoker_Server.Management;
+using CouchPoker_Server.Networking;
 using CouchPoker_Server.Player;
 using System;
 using System.Collections.Generic;
@@ -14,13 +15,15 @@ namespace CouchPoker_Server
 {
     public enum STATUS
     {
-        CHECK, RAISE, FOLD, NO_ACTION, NEW_GAME, MY_TURN, ALL_IN, SMALL_BLIND, BIG_BLIND, DEALER
+        CHECK, RAISE, FOLD, NO_ACTION, NEW_GAME, MY_TURN, ALL_IN, SMALL_BLIND, BIG_BLIND, DEALER, WINNER
     }
 
     public class UserHandler
     {
         public delegate void DataReceivedDelegate(DataReceivedEventArgs args);
         public event DataReceivedDelegate DataReceived;
+
+        public int _id;
 
         public bool IsPlaying { get; set; }
 
@@ -76,13 +79,13 @@ namespace CouchPoker_Server
                 _remoteClient = value;
                 if (_remoteClient != null)
                 {
-                    receiver.BeginReceive(_remoteClient);
+                    if (!receiver.IsRunning)
+                        receiver.BeginReceive(_remoteClient);
                 }
                 else receiver.StopReceiving();
 
             }
         }
-
         public string Username {
             get { return _userData.username; }
             set {
@@ -107,7 +110,16 @@ namespace CouchPoker_Server
         }
         public int CurrentBet {
             get { return Int32.Parse(user.Current.Content.ToString()); }
-            set { user.Current.Content = value.ToString(); }
+            set { 
+                user.Current.Content = value.ToString();
+                if (value == 0)
+                {
+                    user.Current.Visibility = System.Windows.Visibility.Hidden;
+                }
+                else user.Current.Visibility = System.Windows.Visibility.Visible;
+                user.label2.Visibility = user.Current.Visibility;
+                user.label3.Visibility = user.Current.Visibility;
+            }
         }
         public STATUS Status {
             get { return _status; }
@@ -118,6 +130,9 @@ namespace CouchPoker_Server
                     {
                         ChangeColor(new SolidColorBrush(Colors.Gray));
                         user.Action.Content = value;
+                        SetCardsVisibility(false);
+                        IsPlaying = false;
+                        CurrentBet = 0;
                         break;
                     }
                     case STATUS.RAISE:
@@ -138,6 +153,7 @@ namespace CouchPoker_Server
                     {
                         ChangeColor(new SolidColorBrush(Colors.White));
                         user.Action.Content = "";
+                        SetCardsVisibility(true);
                         break;
                     }
                     case STATUS.MY_TURN:
@@ -145,12 +161,18 @@ namespace CouchPoker_Server
                         ChangeColor(new SolidColorBrush(Colors.White));
                         user.Username.Foreground = new SolidColorBrush(Colors.Yellow);
                         user.Action.Content = "";
-                        
+
                         break;
                     }
                     case STATUS.DEALER:
                     {
                         IsDealer = true;
+                        break;
+                    }
+                    case STATUS.WINNER:
+                    {
+                        ChangeColor(new SolidColorBrush(Colors.Yellow));
+                        user.Action.Content = "YOU WIN!";
                         break;
                     }
                 }
@@ -159,6 +181,10 @@ namespace CouchPoker_Server
         }
         public string UID { get; set; }
 
+        public UserHandler(Controls.User uiControl, UserData data, int _id) : this(uiControl, data)
+        {
+            this._id = _id;
+        }
 
         public UserHandler(Controls.User uiControl, UserData data, bool isReconnecting) : this(uiControl, data)
         {
@@ -168,6 +194,11 @@ namespace CouchPoker_Server
         {
             user = uiControl;
             UserData = data;
+
+            Status = STATUS.FOLD;
+            user.Action.Content = "";
+
+            CurrentBet = 0;
         }
 
         public UserHandler()
@@ -180,10 +211,14 @@ namespace CouchPoker_Server
 
         private void Receiver_ClientDisconnected()
         {
-            if (!MainWindow.dispatcher.CheckAccess())
+            Misc.Threading.InvokeIfRequired(() => { 
+                ClearUser(); 
+            });
+
+            /*if (!MainWindow.dispatcher.CheckAccess())
                 MainWindow.dispatcher.Invoke(new Action(ClearUser));
             else
-                ClearUser();
+                ClearUser();*/
         }
 
         public DataReceivedEventArgs latestArgs;
@@ -192,7 +227,7 @@ namespace CouchPoker_Server
             DataReceived?.Invoke(args);
             if (Status == STATUS.MY_TURN && args.status != STATUS.NO_ACTION)
             {
-                InvokeIfRequired(() =>
+                Misc.Threading.InvokeIfRequired(() =>
                 {
                     latestArgs = args;
                     Status = args.status;
@@ -215,16 +250,28 @@ namespace CouchPoker_Server
 
         private void ClearUser()
         {
-            if (MainWindow.CountActiveUsers() < 2)
+            if (IsActive)
             {
-                MainWindow.NotEnoughPlayers();
+                if (MainWindow.CountActiveUsers() <= 2)
+                {
+                    MainWindow.NotEnoughPlayers();
+                }
+                if (IsPlaying)
+                {
+                    Status = STATUS.FOLD;
+                    IsPlaying = false;
+                }
+                //while (IsPlaying) { System.Threading.Thread.Sleep(1000); }
+                MainWindow.usersHistory.Add(new UserData(_userData));
+                UserData = default;
+                if (RemoteClient != null)
+                {
+                    RemoteClient.Close();
+                    RemoteClient.Dispose();
+                    RemoteClient = null;
+                }
+                JoiningManagement.Refresh();
             }
-            if (IsPlaying) Status = STATUS.FOLD;
-            while (IsPlaying) { System.Threading.Thread.Sleep(1000); }
-            MainWindow.usersHistory.Add(new UserData(_userData));
-            UserData = default;
-            _remoteClient = null;
-
         }
 
         public void SetCards(Card[] cards)
@@ -236,19 +283,24 @@ namespace CouchPoker_Server
             Send_Cards(cards);
         }
 
+        public void ResetUser()
+        {
+            Status = STATUS.FOLD;
+            user.Action.Content = "";
+        }
+
+        private void SetCardsVisibility(bool isVisible)
+        {
+            System.Windows.Visibility visibility = 
+                (isVisible) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
+            user.CARD_1.Visibility = visibility;
+            user.CARD_2.Visibility = visibility;
+        }
+
         public void RevealCards()
         {
             user.CARD_1.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative));
             user.CARD_2.Source = new BitmapImage(new Uri(cards[1].Path, UriKind.Relative));
-        }
-
-        public static void InvokeIfRequired(Action action)
-        {
-            if (!MainWindow.dispatcher.CheckAccess())
-            {
-                MainWindow.dispatcher.Invoke(action);
-            }
-            else action.Invoke();
         }
 
         private void SendMessage(string msg)
@@ -275,6 +327,7 @@ namespace CouchPoker_Server
             SendMessage($"YOUR_BET|{CurrentBet}");
             SendMessage($"CHECK_VALUE|{checkValue}");
             SendMessage($"BIG_BLIND|{bigBlindValue}");
+            SendMessage($"EOT");
         }
 
         public void Send_CurrentFigure()

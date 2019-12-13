@@ -12,6 +12,7 @@ namespace CouchPoker_Server.Networking
     public class Broadcaster
     {
         public bool isServerFull = false;
+        private const int port = 25051;
         public Broadcaster()
         {
 
@@ -35,21 +36,28 @@ static void SendUdp(int srcPort, string dstIp, int dstPort, byte[] data)
                 var broadcastInt = addressInt | ~maskInt;
                 var broadcast = new IPAddress(BitConverter.GetBytes(broadcastInt));
 
-                IPEndPoint broadcastAddress = new IPEndPoint(broadcast, 25051);
+                IPEndPoint broadcastAddress = new IPEndPoint(broadcast, port);
                 UdpClient udpClient = new UdpClient();
                 string broadcastMessage = "CouchPoker_Server|" + "stationartServer1";
                 byte[] buffer = Encoding.UTF8.GetBytes(broadcastMessage);
+                bool flip = false;
                 while (true)
                 {
                     while (!isServerFull)
                     {
-                        udpClient.Send(buffer, buffer.Length, broadcastAddress);
-                        Console.WriteLine($"sent udp packet to {broadcast.ToString()}");
-
-                        System.Threading.Thread.Sleep(1500);
+                        if (flip)
+                        {
+                            udpClient.Send(buffer, buffer.Length, broadcastAddress);
+                        }
+                        else
+                        {
+                            udpClient.Send(buffer, buffer.Length, new IPEndPoint(IPAddress.Broadcast, port));
+                        }
+                        flip = !flip;
+                        System.Threading.Thread.Sleep(500);
                     }
 
-                    System.Threading.Thread.Sleep(10000);
+                    System.Threading.Thread.Sleep(2000);
                 }
             }).Start();
             /*

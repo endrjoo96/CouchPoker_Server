@@ -41,17 +41,14 @@ namespace CouchPoker_Server.Networking
         public event ClientDisconnectedDelegate ClientDisconnected;
 
 
-        private CancellationTokenSource cancellationTokenSource;
-        private CancellationToken token;
         private Task task;
+        public volatile bool IsRunning = false;
 
         public async void BeginReceive(TcpClient client)
         {
-            cancellationTokenSource = new CancellationTokenSource();
-            token = cancellationTokenSource.Token;
             task = Task.Run(() =>
             {
-                token.ThrowIfCancellationRequested();
+                IsRunning = true;
                 while (true)
                 {
                     try
@@ -65,19 +62,14 @@ namespace CouchPoker_Server.Networking
                         }
                         string receivedMessage = Encoding.UTF8.GetString(buffer, 0, data);
                         DataReceived?.Invoke(new DataReceivedEventArgs(receivedMessage));
-                        /*if (!MainWindow.dispatcher.CheckAccess())
-                            MainWindow.dispatcher.Invoke(() =>
-                            {
-                                DataReceived?.Invoke(new DataReceivedEventArgs(receivedMessage));
-                            });
-                        else DataReceived?.Invoke(new DataReceivedEventArgs(receivedMessage));*/
                     } catch (Exception ex)
                     {
                         ClientDisconnected?.Invoke();
                         break;
                     }
                 }
-            }, cancellationTokenSource.Token);
+                IsRunning = false;
+            });
 
             try
             {
@@ -87,15 +79,12 @@ namespace CouchPoker_Server.Networking
             {
                 Console.WriteLine($"{nameof(OperationCanceledException)} thrown with message: {e.Message}");
             }
-            finally
-            {
-                cancellationTokenSource.Dispose();
-            }
         }
 
         public void StopReceiving()
         {
-            cancellationTokenSource.Cancel();
+            //cancellationTokenSource.Cancel();
+            IsRunning = false;
         }
     }
 }

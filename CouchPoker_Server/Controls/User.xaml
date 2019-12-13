@@ -7,7 +7,7 @@
              mc:Ignorable="d" Height="auto" Width="auto" MinWidth="125">
     <Viewbox>
         <Grid Name="grid">
-            <StackPanel Height="30" FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5,0,0,5">
+            <StackPanel Height="30" FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,60,0,0">
                 <Image x:Name="CARD_1" Source="/CouchPoker_Server;component/Resources/Cards/Red_back.jpg" Stretch="Uniform"/>
                 <Image x:Name="CARD_2" Source="/CouchPoker_Server;component/Resources/Cards/Red_back.jpg" Stretch="Uniform"/>
             </StackPanel>
@@ -19,7 +19,7 @@
                HorizontalAlignment="Left" 
                VerticalAlignment="Top" Foreground="White"
                   Visibility="Hidden"
-               Margin="0,88,0,0" Padding="5,0,0,0" FontSize="7"/>
+               Margin="0,90,0,0" Padding="5,0,0,0" FontSize="7"/>
             <WrapPanel HorizontalAlignment="Right">
                 <Label Name="label1" Content="Total: $" HorizontalContentAlignment="Right"
                HorizontalAlignment="Right" 

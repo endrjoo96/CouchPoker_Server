@@ -7,12 +7,12 @@
              mc:Ignorable="d" Height="auto" Width="auto" MinWidth="125">
     <Viewbox>
         <Grid>
-            <Label Content="Pot:"
+            <Label Name="InfoLabel" Content="Pot:"
                HorizontalAlignment="Left" 
                VerticalAlignment="Top" Foreground="White"
                Margin="0,0,0,0" Padding="5,0,0,0"/>
             <WrapPanel>
-            <Label Content="$" HorizontalContentAlignment="Right"
+            <Label Name="Dollar" Content="$" HorizontalContentAlignment="Right"
                HorizontalAlignment="Stretch" 
                VerticalAlignment="Top" Foreground="White"
                Margin="30,14,0,0" Padding="0,0,0,0" FontSize="24"/>

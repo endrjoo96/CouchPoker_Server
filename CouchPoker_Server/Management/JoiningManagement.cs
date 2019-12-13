@@ -11,32 +11,67 @@ namespace CouchPoker_Server.Management
 {
     class JoiningManagement
     {
-        public static void Run(List<UserHandler> users, List<UserData> usersHistory)
+        private static CancellationTokenSource cts;
+        private static List<UserHandler> _users;
+        private static List<UserData> _usersHistory;
+        private static volatile bool cancelled;
+
+        public static async void Run(List<UserHandler> users, List<UserData> usersHistory)
         {
-            Task t = new Task(() =>
+            _users = users;
+            _usersHistory = usersHistory;
+            cts = new CancellationTokenSource();
+            CancellationToken token = cts.Token;
+            Task t = Task.Run(() =>
             {
+                //token.ThrowIfCancellationRequested();
                 int delay = 1000;
                 int currentDelay;
                 bool serverIsFull = true;
+                
                 do
                 {
-
+                    cancelled = false;
                     foreach (UserHandler user in users)
                     {
                         if (!user.IsActive)
                         {
                             serverIsFull = false;
-                            Connector.ConnectClient(user).Wait();
+                            Task x = Connector.ConnectClient(user);
+                            while(!x.IsCompleted && !cancelled) { Thread.Sleep(100); }
+                            if (cancelled) Connector.StopListener();
+                            if (!user.IsActive) _usersHistory.Add(user.UserData);
                             break;
                         }
                         else serverIsFull = true;
                     }
-                    currentDelay = serverIsFull ? delay * 10 : delay/10;
+                    currentDelay = serverIsFull ? delay * 10 : delay / 10;
                     Thread.Sleep(currentDelay);
                 } while (true);
+            }, token);
 
-            });
-            t.Start();
+            try
+            {
+                await t;
+            }
+            catch (OperationCanceledException ocex)
+            {
+                Console.WriteLine(ocex.Message);
+            }
+            finally
+            {
+                t.Dispose();
+            }
+
         }
+
+        public static void Refresh()
+        {
+            cancelled = true;
+            //cts.Cancel();
+
+        }
+
+
     }
 }

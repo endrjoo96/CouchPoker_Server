@@ -13,6 +13,14 @@ namespace CouchPoker_Server.Networking
 {
     class Connector
     {
+        private static int port = 25051;
+        private static TcpListener listener = new TcpListener(IPAddress.Any, port);
+
+        public static void StopListener()
+        {
+            listener.Stop();
+        }
+
         public static Task ConnectClient(UserHandler user)
         {   //event to userhandlera
             TcpClient acceptedClient = null;
@@ -20,13 +28,23 @@ namespace CouchPoker_Server.Networking
             {
                 while (true)
                 {
-                    int port = 25051;
                     Console.WriteLine($"Nasluchiwanie polaczenia na porcie {port}");
 
+                    int id = user._id;
 
-                    TcpListener listener = new TcpListener(IPAddress.Any, port);
                     listener.Start();
-                    acceptedClient = listener.AcceptTcpClient();
+
+                    try
+                    {
+                        acceptedClient = listener.AcceptTcpClient();
+
+                    }
+                    catch (SocketException socketex)
+                    {
+                        acceptedClient = null;
+                        listener.Stop();
+                        continue;
+                    }
                     listener.Stop();
 
                     Console.WriteLine($"polaczenie z {acceptedClient.Client.RemoteEndPoint}");
@@ -34,25 +52,46 @@ namespace CouchPoker_Server.Networking
                     string msg = GetResponseFromRemote(acceptedClient, "SEND_ID");
                     if (msg == null)
                     {
+                        acceptedClient.Close();
                         listener.Stop();
                         continue;
                     }
 
                     bool foundInHistory = false;
+                    bool isAlreadyConnected = false;
                     foreach (UserData usr in MainWindow.usersHistory)
                     {
                         if (usr.uID == null || usr.uID.Equals(msg))
                         {
                             foundInHistory = true;
-                            MainWindow.dispatcher.Invoke(() =>
+
+                            foreach (UserHandler u in MainWindow.users)
                             {
-                                user.RemoteClient = acceptedClient;
-                                user.UserData = usr;
-                                user.IsReconnecting = true;
-                            });
-                            SendToRemote(acceptedClient, $"HI_{usr.username}");
+                                if (u.UserData.uID.Equals(msg))
+                                {
+                                    isAlreadyConnected = true;
+                                    break;
+                                }
+                            }
+                            if (isAlreadyConnected)
+                            {
+                                SendToRemote(acceptedClient, $"EXIT");
+                                acceptedClient.Close();
+                                break;
+                            }
+                            else
+                            {
+                                MainWindow.dispatcher.Invoke(() =>
+                                {
+                                    user.RemoteClient = acceptedClient;
+                                    user.UserData = usr;
+                                    user.IsReconnecting = true;
+                                });
+                                SendToRemote(acceptedClient, $"HI_{usr.username}");
+                            }
                         }
                     }
+                    if (isAlreadyConnected) continue;
                     if (!foundInHistory)
                     {
                         string uid = msg;
@@ -71,6 +110,6 @@ namespace CouchPoker_Server.Networking
             return t;
         }
 
-        
+
     }
 }

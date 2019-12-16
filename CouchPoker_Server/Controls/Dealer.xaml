@@ -4,22 +4,22 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CouchPoker_Server.Controls"
-             mc:Ignorable="d" Height="auto" Width="auto" MinWidth="125">
+             mc:Ignorable="d" Height="auto" Width="auto" MinWidth="125" >
     <Viewbox>
         <Grid>
-            <Label Name="InfoLabel" Content="Pot:"
-               HorizontalAlignment="Left" 
+            <TextBlock Name="InfoLabel" Text="Pot:" MaxWidth="130" TextWrapping="Wrap"
+               HorizontalAlignment="Left" TextAlignment="Center"
                VerticalAlignment="Top" Foreground="White"
-               Margin="0,0,0,0" Padding="5,0,0,0"/>
+               Margin="0,0,0,0" Padding="0,0,0,0"/>
             <WrapPanel>
             <Label Name="Dollar" Content="$" HorizontalContentAlignment="Right"
                HorizontalAlignment="Stretch" 
                VerticalAlignment="Top" Foreground="White"
-               Margin="30,14,0,0" Padding="0,0,0,0" FontSize="24"/>
+               Margin="30,14,0,0" Padding="0,0,0,0" FontSize="32"/>
                 <Label Name="Pot" Content="0" HorizontalContentAlignment="Right"
                HorizontalAlignment="Stretch" 
                VerticalAlignment="Top" Foreground="White"
-               Margin="0,14,0,0" Padding="0,0,5,0" FontSize="24"/>
+               Margin="0,14,0,0" Padding="0,0,5,0" FontSize="32"/>
             </WrapPanel>
         </Grid>
     </Viewbox>

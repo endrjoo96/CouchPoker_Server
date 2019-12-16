@@ -40,7 +40,7 @@ namespace CouchPoker_Server.Management
                             Task x = Connector.ConnectClient(user);
                             while(!x.IsCompleted && !cancelled) { Thread.Sleep(100); }
                             if (cancelled) Connector.StopListener();
-                            if (!user.IsActive) _usersHistory.Add(user.UserData);
+                            //if (!user.IsActive) _usersHistory.Add(user.UserData);
                             break;
                         }
                         else serverIsFull = true;

@@ -4,49 +4,70 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CouchPoker_Server.Controls"
-             mc:Ignorable="d" Height="auto" Width="auto" MinWidth="125">
+             mc:Ignorable="d" Height="auto" Width="auto" MinWidth="125" MaxWidth="300" Padding="5">
     <Viewbox>
         <Grid Name="grid">
-            <StackPanel Height="30" FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,60,0,0"/>
-            <Label Name="Username" Content="" MinWidth="120"
-               HorizontalAlignment="Left" 
+            <Grid.Background>
+                <SolidColorBrush Color="Black" Opacity="0.3"/>
+            </Grid.Background>
+            <!--StackPanel Height="30" FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,60,0,0"/-->
+            <WrapPanel>
+                <Label Name="Username" Content="Player123" MinWidth="120"
+               HorizontalAlignment="Left" Margin="-1,-3,0,0"
                VerticalAlignment="Top" Foreground="White"
-               FontWeight="Bold" Padding="5,0,0,0" FontSize="16"/>
+               FontWeight="Bold" Padding="8,0,0,0" FontSize="16"/>
+            </WrapPanel>
             <Label Name="IsDealer" Content="Dealer" HorizontalContentAlignment="Left"
                HorizontalAlignment="Left" 
-               VerticalAlignment="Top" Foreground="White"
-                  Visibility="Hidden"
-               Margin="0,90,0,0" Padding="5,0,0,0" FontSize="7"/>
-            <WrapPanel HorizontalAlignment="Right">
+               VerticalAlignment="Top" Foreground="Black"
+                  Visibility="Hidden" FontWeight="Bold"
+               Margin="-5,5,0,0" Padding="1,0,1,0" FontSize="5"
+                   Background="White" RenderTransformOrigin="0.5,0.5">
+                <Label.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform Angle="90"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Label.RenderTransform>
+            </Label>
+
+            <WrapPanel Margin="0,18,0,0">
+            <StackPanel>
+            <WrapPanel Margin="0,0,0,0" HorizontalAlignment="Left" MinWidth="50">
                 <Label Name="label1" Content="Total: $" HorizontalContentAlignment="Right"
                HorizontalAlignment="Right" 
                VerticalAlignment="Top" Foreground="White"
-               Margin="0,21,0,0" Padding="5,0,0,0" FontSize="11"/>
+               Margin="0,0,0,0" Padding="5,0,0,0" FontSize="9"/>
                 <Label Name="Total" Content="10000" HorizontalContentAlignment="Right"
                HorizontalAlignment="Right" 
                VerticalAlignment="Top" Foreground="White"
-               Margin="0,21,0,0" Padding="0,0,5,0" FontSize="11"/>
-            </WrapPanel>
-            <Label Name="label2" Content="Current bet:"
-               HorizontalAlignment="Right" 
-               VerticalAlignment="Top" Foreground="White"
-               Margin="0,40,3,0" Padding="5,0,0,0"/>
-
-            <WrapPanel HorizontalAlignment="Right">
-                <Label Name="label3" Content="$" HorizontalContentAlignment="Right"
-               HorizontalAlignment="Stretch" 
-               VerticalAlignment="Top" Foreground="White"
-               Margin="0,52,0,0" Padding="0,0,0,0" FontSize="24"/>
-                <Label Name="Current" Content="0" HorizontalContentAlignment="Right"
-               HorizontalAlignment="Stretch" 
-               VerticalAlignment="Top" Foreground="White"
-               Margin="0,52,0,0" Padding="0,0,5,0" FontSize="24"/>
+               Margin="0,0,0,0" Padding="0,0,5,0" FontSize="9"/>
             </WrapPanel>
             <Label Name="Action" Content="Check"
                HorizontalAlignment="Left" 
                VerticalAlignment="Top" Foreground="White"
-               Margin="0,21,0,0" Padding="0,0,5,0"/>
-            <local:UserCards x:Name="cardsOnHand" VerticalAlignment="Top" Height="50" MinWidth="10" Margin="0,85,5,0" HorizontalAlignment="Right" />
+               Margin="5,0,0,0" Padding="0,0,5,0"/>
+            <WrapPanel Margin="5,0,0,0" HorizontalAlignment="Left" Width="auto">
+                <Label Name="label3" Content="$" HorizontalContentAlignment="Right"
+               HorizontalAlignment="Stretch" 
+               VerticalAlignment="Top" Foreground="White"
+               Margin="0,0,0,0" Padding="0,0,0,0" FontSize="14" FontWeight="Bold"/>
+                <Label Name="Current" Content="10000" HorizontalContentAlignment="Right"
+               HorizontalAlignment="Stretch" 
+               VerticalAlignment="Top" Foreground="White"
+               Margin="0,0,0,0" Padding="0,0,0,0" FontSize="14" FontWeight="Bold"/>
+            </WrapPanel>
+            </StackPanel>
+                <local:UserCards 
+                    x:Name="cardsOnHand" VerticalAlignment="Top" 
+                    Height="45" MinWidth="10" Margin="0,0,0,0" 
+                    HorizontalAlignment="Right" />
+            </WrapPanel>
+
+            
+
         </Grid>
     </Viewbox>
 </UserControl>

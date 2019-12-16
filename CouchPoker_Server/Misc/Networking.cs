@@ -25,7 +25,7 @@ namespace CouchPoker_Server.Misc
                 return msg;
             } catch(Exception ex)
             {
-
+                Console.WriteLine(ex.Message);
             }
             return string.Empty;
         }

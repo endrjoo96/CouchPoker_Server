@@ -15,7 +15,7 @@ namespace CouchPoker_Server
 {
     public enum STATUS
     {
-        CHECK, RAISE, FOLD, NO_ACTION, NEW_GAME, MY_TURN, ALL_IN, SMALL_BLIND, BIG_BLIND, DEALER, WINNER
+        CHECK, RAISE, FOLD, NO_ACTION, NEW_GAME, MY_TURN, ALL_IN, SMALL_BLIND, BIG_BLIND, DEALER, WINNER, NEW_USER
     }
 
     public class UserHandler
@@ -118,7 +118,6 @@ namespace CouchPoker_Server
                     user.Current.Visibility = System.Windows.Visibility.Hidden;
                 }
                 else user.Current.Visibility = System.Windows.Visibility.Visible;
-                user.label2.Visibility = user.Current.Visibility;
                 user.label3.Visibility = user.Current.Visibility;
             }
         }
@@ -174,6 +173,15 @@ namespace CouchPoker_Server
                     {
                         ChangeColor(new SolidColorBrush(Colors.Yellow));
                         user.Action.Content = "YOU WIN!";
+                        break;
+                    }
+                    case STATUS.NEW_USER:
+                    {
+                        ChangeColor(new SolidColorBrush(Colors.Gray));
+                        user.Action.Content = "";
+                        SetCardsVisibility(false);
+                        IsPlaying = false;
+                        CurrentBet = 0;
                         break;
                     }
                 }
@@ -238,7 +246,6 @@ namespace CouchPoker_Server
         private void ChangeColor(SolidColorBrush color)
         {
             user.label1.Foreground = color;
-            user.label2.Foreground = color;
             user.label3.Foreground = color;
             user.Current.Foreground = color;
             user.Total.Foreground = color;
@@ -259,8 +266,11 @@ namespace CouchPoker_Server
                     Status = STATUS.FOLD;
                     IsPlaying = false;
                 }
-                //while (IsPlaying) { System.Threading.Thread.Sleep(1000); }
-                MainWindow.usersHistory.Add(new UserData(_userData));
+                for(int i=0;i< MainWindow.usersHistory.Count;i++)
+                {
+                    if (MainWindow.usersHistory[i].uID == UserData.uID)
+                        MainWindow.usersHistory[i] = new UserData(UserData);
+                }
                 UserData = default;
                 if (RemoteClient != null)
                 {

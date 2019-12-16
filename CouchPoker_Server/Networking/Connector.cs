@@ -32,17 +32,24 @@ namespace CouchPoker_Server.Networking
 
                     int id = user._id;
 
-                    listener.Start();
-
                     try
                     {
+                        listener.Start();
                         acceptedClient = listener.AcceptTcpClient();
 
                     }
                     catch (SocketException socketex)
                     {
+                        Console.WriteLine(socketex.Message);
                         acceptedClient = null;
                         listener.Stop();
+                        break;
+                    }
+
+                    catch (ObjectDisposedException disposedEx)
+                    {
+                        Console.WriteLine(disposedEx.Message);
+                        listener = new TcpListener(IPAddress.Any, port);
                         continue;
                     }
                     listener.Stop();
@@ -67,7 +74,7 @@ namespace CouchPoker_Server.Networking
 
                             foreach (UserHandler u in MainWindow.users)
                             {
-                                if (u.UserData.uID.Equals(msg))
+                                if (u.IsActive && u.UserData.uID.Equals(msg))
                                 {
                                     isAlreadyConnected = true;
                                     break;
@@ -86,6 +93,7 @@ namespace CouchPoker_Server.Networking
                                     user.RemoteClient = acceptedClient;
                                     user.UserData = usr;
                                     user.IsReconnecting = true;
+                                    user.Status = STATUS.NEW_USER;
                                 });
                                 SendToRemote(acceptedClient, $"HI_{usr.username}");
                             }
@@ -101,6 +109,8 @@ namespace CouchPoker_Server.Networking
                             user.UserData = new UserData(uid, msg, 10000);
                             user.RemoteClient = acceptedClient;
                             user.IsReconnecting = false;
+                            user.Status = STATUS.NEW_USER;
+                            MainWindow.usersHistory.Add(user.UserData);
                         });
                     }
                     break;

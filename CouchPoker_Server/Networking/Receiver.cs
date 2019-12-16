@@ -64,6 +64,7 @@ namespace CouchPoker_Server.Networking
                         DataReceived?.Invoke(new DataReceivedEventArgs(receivedMessage));
                     } catch (Exception ex)
                     {
+                        Console.WriteLine(ex.Message);
                         ClientDisconnected?.Invoke();
                         break;
                     }

@@ -6,8 +6,16 @@ using System.Threading.Tasks;
 
 namespace CouchPoker_Server.Gamemodes
 {
-    public class TexasHoldEm
+    public class TexasHoldEm : IGamemode
     {
+        public TexasHoldEm()
+        {
 
+        }
+
+        public Task RunGame()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

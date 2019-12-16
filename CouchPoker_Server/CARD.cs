@@ -331,7 +331,7 @@ namespace CouchPoker_Server
                 }
                 catch (ArgumentOutOfRangeException aoorex)
                 {
-
+                    Console.WriteLine(aoorex.Message);
                 }
 
                 cardsSet = new List<Card>(dynamicList);

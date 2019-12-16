@@ -28,7 +28,7 @@ namespace CouchPoker_Server.Player
             set {
                 if (State != DEALER_STATE.SHOW_INFO)
                     State = DEALER_STATE.SHOW_INFO;
-                dealer.InfoLabel.Content = value;
+                dealer.InfoLabel.Text = value;
             }
         }
 
@@ -49,7 +49,7 @@ namespace CouchPoker_Server.Player
                     {
                         dealer.Dollar.Visibility = System.Windows.Visibility.Visible;
                         dealer.Pot.Visibility = System.Windows.Visibility.Visible;
-                        dealer.InfoLabel.Content = "Pot:";
+                        dealer.InfoLabel.Text = "Pot:";
                         break;
                     }
                 }

@@ -1,4 +1,5 @@
-﻿using CouchPoker_Server.Management;
+﻿using CouchPoker_Server.Gamemodes;
+using CouchPoker_Server.Management;
 using CouchPoker_Server.Networking;
 using CouchPoker_Server.Player;
 using System;
@@ -13,9 +14,6 @@ using static CouchPoker_Server.Misc.Threading;
 
 namespace CouchPoker_Server
 {
-    /// <summary>
-    /// Logika interakcji dla klasy MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public static Dispatcher dispatcher;
@@ -28,6 +26,8 @@ namespace CouchPoker_Server
         public Broadcaster broadcaster;
         private static volatile bool runGame_break = false;
 
+        private IGamemode gamemode;
+
         int blindValue = 20;
 
         public MainWindow()
@@ -36,7 +36,12 @@ namespace CouchPoker_Server
             dealer = new DealerHandler(Dealer);
             dispatcher = this.Dispatcher;
             usedCards = new List<Card>();
-            usersHistory = new List<UserData>();
+            usersHistory = new List<UserData>() {
+                new UserData("testUUID_1", "Player1", 10000),
+                new UserData("testUUID_2", "Player2", 10000),
+                new UserData("testUUID_3", "Player3", 10000),
+                new UserData("testUUID_4", "Player4", 10000),
+            };
 
             users = new List<UserHandler>()
             {
@@ -46,15 +51,25 @@ namespace CouchPoker_Server
                 new UserHandler(UserSlot_4, new UserData(), 2),
                 new UserHandler(UserSlot_5, new UserData(), 2),
                 new UserHandler(UserSlot_6, new UserData(), 2),
-                new UserHandler(UserSlot_7, new UserData(), 2)
+                new UserHandler(UserSlot_7, new UserData(), 2),
+                new UserHandler(UserSlot_8, new UserData(), 2),
+                new UserHandler(UserSlot_9, new UserData(), 2),
+                new UserHandler(UserSlot_10, new UserData(), 2),
+                new UserHandler(UserSlot_11, new UserData(), 2),
+                new UserHandler(UserSlot_12, new UserData(), 2),
+                new UserHandler(UserSlot_13, new UserData(), 2),
+                new UserHandler(UserSlot_14, new UserData(), 2),
+                new UserHandler(UserSlot_15, new UserData(), 2)
             };
             JoiningManagement.Run(users, usersHistory);
             broadcaster = new Broadcaster();
 
+            gamemode = new TexasHoldEm();
+
             RunGame();
         }
 
-        public Card GetRandomCardSafely()
+        private Card GetRandomCardSafely()
         {
             Card c = CARD.GetRandomCard();
             while (usedCards.Find(x => x.Path == c.Path) != null)
@@ -323,6 +338,8 @@ namespace CouchPoker_Server
                             begin = true;
                         }
 
+                        else if (u.Status == STATUS.FOLD ||
+                            u.Status == STATUS.NEW_USER) continue;
 
                         else if (begin)
                         {

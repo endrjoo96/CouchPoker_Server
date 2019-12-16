@@ -33,7 +33,7 @@
                 </Label.RenderTransform>
             </Label>
 
-            <WrapPanel Margin="0,18,0,0">
+            <WrapPanel Margin="0,18,0,0" MaxWidth="160">
             <StackPanel>
             <WrapPanel Margin="0,0,0,0" HorizontalAlignment="Left" MinWidth="50">
                 <Label Name="label1" Content="Total: $" HorizontalContentAlignment="Right"

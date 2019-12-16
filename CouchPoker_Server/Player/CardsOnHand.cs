@@ -13,24 +13,29 @@ namespace CouchPoker_Server.Player
     {
         private UserCards userCards;
         private int _cardsCount;
+        private List<Image> cardsImages;
         public CardsOnHand(ref UserCards cards, int cardsCount)
         {
             _cardsCount = cardsCount;
             userCards = cards;
-            for (int i = 0; i < cards.stackPanel.Children.Count; i++)
+            cardsImages = new List<Image>()
             {
-                cards.stackPanel.Children[i].Visibility = System.Windows.Visibility.Collapsed;
+                userCards.CARD_1, userCards.CARD_2, userCards.CARD_3, userCards.CARD_4, userCards.CARD_5,
+            };
+            for (int i = 0; i < cardsImages.Count; i++)
+            {
+                cardsImages[i].Visibility = System.Windows.Visibility.Collapsed;
             }
             for (int i = 0; i < cardsCount; i++)
             {
-                cards.stackPanel.Children[i].Visibility = System.Windows.Visibility.Visible;
+                cardsImages[i].Visibility = System.Windows.Visibility.Visible;
             }
         }
 
         public void SetCard(int cardNumber, Card card)
         {
             if (cardNumber >= 0 && cardNumber < _cardsCount)
-                ((Image)userCards.stackPanel.Children[cardNumber]).Source =
+                ((Image)cardsImages[cardNumber]).Source =
                     new BitmapImage(new Uri(card.Path, UriKind.Relative));
         }
 
@@ -38,7 +43,7 @@ namespace CouchPoker_Server.Player
         {
             for (int i = 0; i < _cardsCount; i++)
             {
-                ((Image)userCards.stackPanel.Children[i]).Source = new BitmapImage(new Uri(imagePath, UriKind.Relative));
+                ((Image)cardsImages[i]).Source = new BitmapImage(new Uri(imagePath, UriKind.Relative));
             }
         }
 
@@ -46,7 +51,7 @@ namespace CouchPoker_Server.Player
         {
             System.Windows.Visibility visibility =
                     (isVisible) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
-            userCards.stackPanel.Visibility = visibility;
+            userCards.mainPanel.Visibility = visibility;
         }
 
         public UserCards GetView()

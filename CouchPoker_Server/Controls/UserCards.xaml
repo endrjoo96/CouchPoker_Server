@@ -5,11 +5,19 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CouchPoker_Server.Controls"
              mc:Ignorable="d" >
-    <StackPanel x:Name="stackPanel" Orientation="Horizontal">
+    <WrapPanel x:Name="mainPanel" Orientation="Horizontal">
         <Image x:Name="CARD_1" Source="/CouchPoker_Server;component/Resources/Cards/Red_back.jpg" Stretch="Uniform" Visibility="Collapsed"/>
         <Image x:Name="CARD_2" Source="/CouchPoker_Server;component/Resources/Cards/Red_back.jpg" Stretch="Uniform" Visibility="Collapsed"/>
         <Image x:Name="CARD_3" Source="/CouchPoker_Server;component/Resources/Cards/Red_back.jpg" Stretch="Uniform" Visibility="Collapsed"/>
         <Image x:Name="CARD_4" Source="/CouchPoker_Server;component/Resources/Cards/Red_back.jpg" Stretch="Uniform" Visibility="Collapsed"/>
         <Image x:Name="CARD_5" Source="/CouchPoker_Server;component/Resources/Cards/Red_back.jpg" Stretch="Uniform" Visibility="Collapsed"/>
-    </StackPanel>
+        <!--StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal">
+
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
+            </StackPanel>
+        </-->
+
+    </WrapPanel>
 </UserControl>

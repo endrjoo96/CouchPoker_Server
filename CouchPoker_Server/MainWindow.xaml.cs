@@ -40,13 +40,13 @@ namespace CouchPoker_Server
 
             users = new List<UserHandler>()
             {
-                new UserHandler(UserSlot_1, new UserData(), 1),
+                new UserHandler(UserSlot_1, new UserData(), 2),
                 new UserHandler(UserSlot_2, new UserData(), 2),
-                new UserHandler(UserSlot_3, new UserData(), 3),
-                new UserHandler(UserSlot_4, new UserData(), 4),
-                new UserHandler(UserSlot_5, new UserData(), 5),
-                new UserHandler(UserSlot_6, new UserData(), 6),
-                new UserHandler(UserSlot_7, new UserData(), 7)
+                new UserHandler(UserSlot_3, new UserData(), 2),
+                new UserHandler(UserSlot_4, new UserData(), 2),
+                new UserHandler(UserSlot_5, new UserData(), 2),
+                new UserHandler(UserSlot_6, new UserData(), 2),
+                new UserHandler(UserSlot_7, new UserData(), 2)
             };
             JoiningManagement.Run(users, usersHistory);
             broadcaster = new Broadcaster();

@@ -25,6 +25,7 @@ namespace CouchPoker_Server
 
         public int _id;
 
+        private CardsOnHand _cardsOnHand;
         public bool IsPlaying { get; set; }
 
         private UserData _userData;
@@ -110,7 +111,7 @@ namespace CouchPoker_Server
         }
         public int CurrentBet {
             get { return Int32.Parse(user.Current.Content.ToString()); }
-            set { 
+            set {
                 user.Current.Content = value.ToString();
                 if (value == 0)
                 {
@@ -180,19 +181,15 @@ namespace CouchPoker_Server
             }
         }
         public string UID { get; set; }
-
-        public UserHandler(Controls.User uiControl, UserData data, int _id) : this(uiControl, data)
-        {
-            this._id = _id;
-        }
-
-        public UserHandler(Controls.User uiControl, UserData data, bool isReconnecting) : this(uiControl, data)
+        
+        public UserHandler(Controls.User uiControl, UserData data, int cardsCount, bool isReconnecting) : this(uiControl, data, cardsCount)
         {
             IsReconnecting = isReconnecting;
         }
-        public UserHandler(Controls.User uiControl, UserData data) : this()
+        public UserHandler(Controls.User uiControl, UserData data, int cardsCount) : this()
         {
             user = uiControl;
+            _cardsOnHand = new CardsOnHand(ref user.cardsOnHand, cardsCount);
             UserData = data;
 
             Status = STATUS.FOLD;
@@ -211,8 +208,9 @@ namespace CouchPoker_Server
 
         private void Receiver_ClientDisconnected()
         {
-            Misc.Threading.InvokeIfRequired(() => { 
-                ClearUser(); 
+            Misc.Threading.InvokeIfRequired(() =>
+            {
+                ClearUser();
             });
 
             /*if (!MainWindow.dispatcher.CheckAccess())
@@ -273,12 +271,15 @@ namespace CouchPoker_Server
                 JoiningManagement.Refresh();
             }
         }
-
+        
         public void SetCards(Card[] cards)
         {
             this.cards = cards;
-            user.CARD_1.Source = new BitmapImage(new Uri(CARD.reverse, UriKind.Relative));
-            user.CARD_2.Source = new BitmapImage(new Uri(CARD.reverse, UriKind.Relative));
+            if (_cardsOnHand == null)
+            {
+                _cardsOnHand = new CardsOnHand(ref user.cardsOnHand, cards.Length);
+            }
+            _cardsOnHand.SetCards(CARD.reverse);
 
             Send_Cards(cards);
         }
@@ -291,16 +292,23 @@ namespace CouchPoker_Server
 
         private void SetCardsVisibility(bool isVisible)
         {
-            System.Windows.Visibility visibility = 
-                (isVisible) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
-            user.CARD_1.Visibility = visibility;
-            user.CARD_2.Visibility = visibility;
+            if (_cardsOnHand != null)
+            {
+                _cardsOnHand.SetVisibility(isVisible);
+            }
         }
 
         public void RevealCards()
         {
-            user.CARD_1.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative));
-            user.CARD_2.Source = new BitmapImage(new Uri(cards[1].Path, UriKind.Relative));
+            if (_cardsOnHand == null)
+            {
+                _cardsOnHand = new CardsOnHand(ref user.cardsOnHand, cards.Length);
+            }
+            for (int i = 0; i < cards.Length; i++)
+            {
+                _cardsOnHand.SetCard(i, cards[i]);
+            }
+
         }
 
         private void SendMessage(string msg)

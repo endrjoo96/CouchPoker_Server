@@ -57,6 +57,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\UserCards.xaml.cs">
+      <DependentUpon>UserCards.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Gamemodes\IGamemode.cs" />
     <Compile Include="Gamemodes\TexasHoldEm.cs" />
     <Compile Include="Management\JoiningManagement.cs" />
@@ -65,6 +68,7 @@
     <Compile Include="Networking\Broadcaster.cs" />
     <Compile Include="Networking\Receiver.cs" />
     <Compile Include="Networking\Connector.cs" />
+    <Compile Include="Player\CardsOnHand.cs" />
     <Compile Include="Player\DealerHandler.cs" />
     <Compile Include="Player\UserData.cs" />
     <Compile Include="Player\UserHandler.cs" />
@@ -77,6 +81,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\User.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\UserCards.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

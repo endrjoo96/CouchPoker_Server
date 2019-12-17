@@ -257,7 +257,7 @@ namespace CouchPoker_Server
         {
             if (IsActive)
             {
-                if (MainWindow.CountActiveUsers() <= 2)
+                if (MainWindow.CountPlayingUsers() <= 2)
                 {
                     MainWindow.NotEnoughPlayers();
                 }

@@ -339,16 +339,20 @@ namespace CouchPoker_Server
                         }
 
                         else if (u.Status == STATUS.FOLD ||
-                            u.Status == STATUS.NEW_USER) continue;
+                            u.Status == STATUS.NEW_USER ||
+                            !u.IsActive || !u.IsPlaying) continue;
 
                         else if (begin)
                         {
                             foreach (UserHandler usr in currentUsers)
                             {
-                                InvokeIfRequired(() =>
+                                if (usr.IsActive && usr.IsPlaying)
                                 {
-                                    u.Send_GameInfo(checkValue, blindValue);
-                                });
+                                    InvokeIfRequired(() =>
+                                    {
+                                        usr.Send_GameInfo(checkValue, blindValue);
+                                    });
+                                }
                             }
 
                             InvokeIfRequired(() =>
@@ -597,6 +601,19 @@ namespace CouchPoker_Server
             foreach (UserHandler usr in users)
             {
                 if (usr.IsActive)
+                {
+                    currentPlayers++;
+                }
+            }
+            return currentPlayers;
+        }
+
+        public static int CountPlayingUsers()
+        {
+            int currentPlayers = 0;
+            foreach (UserHandler usr in users)
+            {
+                if (usr.IsPlaying)
                 {
                     currentPlayers++;
                 }

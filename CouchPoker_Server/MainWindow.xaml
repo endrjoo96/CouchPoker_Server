@@ -45,7 +45,7 @@
         <Controls:User x:Name="UserSlot_14"  VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
         <Controls:User x:Name="UserSlot_15"  VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="0"/>
         <Viewbox  HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ColumnSpan="3" Grid.RowSpan="2" Grid.Column="1" Grid.Row="2" Margin="0,0,0,0">
-            <Controls:ChoosedCards x:Name="choosedCards"/>
+            <Controls:ChoosedCards x:Name="ChoosedCards"/>
         </Viewbox>
         <Controls:Dealer x:Name="Dealer" 
                          Grid.Column="2"

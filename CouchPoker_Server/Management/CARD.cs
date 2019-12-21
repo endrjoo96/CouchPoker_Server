@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace CouchPoker_Server
 {
@@ -646,6 +647,11 @@ namespace CouchPoker_Server
             Value = value;
             Path = $"{CARD.path}/{value}{color}.jpg";
         }
+
+        public BitmapImage GetImage()
+        {
+            return new BitmapImage(new Uri(Path, UriKind.Relative));
+        }
     }
 
     public static class CARD
@@ -682,15 +688,14 @@ namespace CouchPoker_Server
             Card c = new Card(COLOR[r.Next(0, 3)], VALUE[r.Next(0, 12)]);
             return c;
         }
-
-        public static Card GetStrongest(List<Card[]> setsOfCards)
+        public static Card GetRandomCardSafely(List<Card> alreadyUsedCards)
         {
-
-
-
-
-
-            throw new NotImplementedException();
+            Card c = GetRandomCard();
+            while (alreadyUsedCards.Find(x => x.Path == c.Path) != null)
+            {
+                c = GetRandomCard();
+            }
+            return c;
         }
     }
 }

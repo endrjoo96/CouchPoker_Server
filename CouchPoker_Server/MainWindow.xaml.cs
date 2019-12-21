@@ -26,15 +26,22 @@ namespace CouchPoker_Server
         public Broadcaster broadcaster;
         private static volatile bool runGame_break = false;
 
-        private IGamemode gamemode;
+        private Gamemode gamemode;
+        private Board board;
 
         int blindValue = 20;
 
         public MainWindow()
         {
             InitializeComponent();
-            dealer = new DealerHandler(Dealer);
             dispatcher = this.Dispatcher;
+
+            board = new Board(2, new Controls.User[]
+            {
+                UserSlot_1, UserSlot_2, UserSlot_3, UserSlot_4, UserSlot_5, UserSlot_6, UserSlot_7, UserSlot_8, UserSlot_9, UserSlot_10, UserSlot_11, UserSlot_12, UserSlot_13, UserSlot_14, UserSlot_15
+            }, Dealer, ChoosedCards);
+
+            dealer = new DealerHandler(Dealer);
             usedCards = new List<Card>();
             usersHistory = new List<UserData>() {
                 new UserData("testUUID_1", "Player1", 10000),
@@ -61,23 +68,15 @@ namespace CouchPoker_Server
                 new UserHandler(UserSlot_14, new UserData(), 2),
                 new UserHandler(UserSlot_15, new UserData(), 2)
             };
+
             JoiningManagement.Run(users, usersHistory);
             broadcaster = new Broadcaster();
 
-            gamemode = new TexasHoldEm();
-
-            RunGame();
+            gamemode = new TexasHoldEm(users, usersHistory);
+            gamemode.RunGame();
         }
 
-        private Card GetRandomCardSafely()
-        {
-            Card c = CARD.GetRandomCard();
-            while (usedCards.Find(x => x.Path == c.Path) != null)
-            {
-                c = CARD.GetRandomCard();
-            }
-            return c;
-        }
+        
 
         private void SetCards(GAME_MOMENT moment, Card[] cards)
         {
@@ -85,41 +84,41 @@ namespace CouchPoker_Server
             {
                 case GAME_MOMENT.FLOP:
                 {
-                    choosedCards.Flop_1.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative)); publicCards.Add(cards[0]);
-                    choosedCards.Flop_2.Source = new BitmapImage(new Uri(cards[1].Path, UriKind.Relative)); publicCards.Add(cards[1]);
-                    choosedCards.Flop_3.Source = new BitmapImage(new Uri(cards[2].Path, UriKind.Relative)); publicCards.Add(cards[2]);
+                    ChoosedCards.Flop_1.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative)); publicCards.Add(cards[0]);
+                    ChoosedCards.Flop_2.Source = new BitmapImage(new Uri(cards[1].Path, UriKind.Relative)); publicCards.Add(cards[1]);
+                    ChoosedCards.Flop_3.Source = new BitmapImage(new Uri(cards[2].Path, UriKind.Relative)); publicCards.Add(cards[2]);
                     break;
                 }
                 case GAME_MOMENT.TURN:
                 {
 
-                    choosedCards.Turn.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative)); publicCards.Add(cards[0]);
+                    ChoosedCards.Turn.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative)); publicCards.Add(cards[0]);
                     break;
                 }
                 case GAME_MOMENT.RIVER:
                 {
 
-                    choosedCards.River.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative)); publicCards.Add(cards[0]);
+                    ChoosedCards.River.Source = new BitmapImage(new Uri(cards[0].Path, UriKind.Relative)); publicCards.Add(cards[0]);
                     break;
                 }
                 case GAME_MOMENT.PREFLOP:
                 {
                     publicCards = new List<Card>();
                     ImageSource src = new BitmapImage(new Uri(CARD.reverse, UriKind.Relative));
-                    choosedCards.Flop_1.Source = src;
-                    choosedCards.Flop_2.Source = src;
-                    choosedCards.Flop_3.Source = src;
-                    choosedCards.Turn.Source = src;
-                    choosedCards.River.Source = src;
+                    ChoosedCards.Flop_1.Source = src;
+                    ChoosedCards.Flop_2.Source = src;
+                    ChoosedCards.Flop_3.Source = src;
+                    ChoosedCards.Turn.Source = src;
+                    ChoosedCards.River.Source = src;
                     break;
                 }
                 case GAME_MOMENT.GONE:
                 {
-                    choosedCards.Flop_1.Source = null;
-                    choosedCards.Flop_2.Source = null;
-                    choosedCards.Flop_3.Source = null;
-                    choosedCards.Turn.Source = null;
-                    choosedCards.River.Source = null;
+                    ChoosedCards.Flop_1.Source = null;
+                    ChoosedCards.Flop_2.Source = null;
+                    ChoosedCards.Flop_3.Source = null;
+                    ChoosedCards.Turn.Source = null;
+                    ChoosedCards.River.Source = null;
                     break;
                 }
             }
@@ -444,8 +443,8 @@ namespace CouchPoker_Server
             SetCards(GAME_MOMENT.PREFLOP, null);
             foreach (var user in currentUsers)
             {
-                usedCards.Add(GetRandomCardSafely());
-                usedCards.Add(GetRandomCardSafely());
+                usedCards.Add(CARD.GetRandomCardSafely(usedCards));
+                usedCards.Add(CARD.GetRandomCardSafely(usedCards));
                 user.SetCards(new Card[] { usedCards[usedCards.Count - 1], usedCards[usedCards.Count - 2] });
                 user.Status = STATUS.NEW_GAME;
                 user.IsDealer = false;
@@ -469,7 +468,7 @@ namespace CouchPoker_Server
 
         private void ExecuteFlop(List<UserHandler> currentUsers)
         {
-            for (int i = 0; i < 3; i++) { usedCards.Add(GetRandomCardSafely()); }
+            for (int i = 0; i < 3; i++) { usedCards.Add(CARD.GetRandomCardSafely(usedCards)); }
             SetCards(GAME_MOMENT.FLOP, new Card[]
             {
                 usedCards[usedCards.Count-3],
@@ -487,7 +486,7 @@ namespace CouchPoker_Server
 
         private void ExecuteTurn(List<UserHandler> currentUsers)
         {
-            usedCards.Add(GetRandomCardSafely());
+            usedCards.Add(CARD.GetRandomCardSafely(usedCards));
             SetCards(GAME_MOMENT.TURN, new Card[]
             {
                 usedCards[usedCards.Count-1]
@@ -503,7 +502,7 @@ namespace CouchPoker_Server
 
         private void ExecuteRiver(List<UserHandler> currentUsers)
         {
-            usedCards.Add(GetRandomCardSafely());
+            usedCards.Add(CARD.GetRandomCardSafely(usedCards));
             SetCards(GAME_MOMENT.RIVER, new Card[]
             {
                 usedCards[usedCards.Count-1]
@@ -563,13 +562,6 @@ namespace CouchPoker_Server
                 }
                 iterator++;
             }
-
-            /*
-             TODO:
-             obliczyć konfliktowe figury (wziąć sety z najwyższą kartą w każdej kolejnej iteracji, powtarzać do wyczerpania kart)
-             jeśli skończyły się karty, a dalej jest konflikt, pulę należy podzielić (ZROBIONE)
-             zwrócić tablicę z wygranymi userami, ustawić im STATUS.WINNER
-             */
 
             return usersWithConflictingSets.ToArray();
         }

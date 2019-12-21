@@ -8,6 +8,8 @@ namespace CouchPoker_Server.Gamemodes
 {
     public abstract class Gamemode
     {
-        public abstract Task RunGame();
+        protected int BiddValue = 20;
+        protected int CardsForUsers = 2;
+        public abstract void RunGame();
     }
 }

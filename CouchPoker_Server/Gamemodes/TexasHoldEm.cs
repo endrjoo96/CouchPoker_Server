@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace CouchPoker_Server.Gamemodes
 {
-    public class TexasHoldEm : IGamemode
+    public class TexasHoldEm : Gamemode
     {
         public TexasHoldEm()
         {
 
         }
 
-        public Task RunGame()
+        public override Task RunGame()
         {
             throw new NotImplementedException();
         }

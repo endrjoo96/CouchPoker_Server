@@ -60,7 +60,7 @@
     <Compile Include="Controls\UserCards.xaml.cs">
       <DependentUpon>UserCards.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Gamemodes\IGamemode.cs" />
+    <Compile Include="Gamemodes\Gamemode.cs" />
     <Compile Include="Gamemodes\TexasHoldEm.cs" />
     <Compile Include="Management\JoiningManagement.cs" />
     <Compile Include="Misc\Security.cs" />

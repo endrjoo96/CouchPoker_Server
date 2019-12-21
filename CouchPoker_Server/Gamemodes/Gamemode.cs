@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace CouchPoker_Server.Gamemodes
 {
-    public interface IGamemode
+    public abstract class Gamemode
     {
-        Task RunGame();
+        public abstract Task RunGame();
     }
 }

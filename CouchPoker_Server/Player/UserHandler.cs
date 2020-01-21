@@ -345,7 +345,7 @@ namespace CouchPoker_Server
             SendMessage($"YOUR_BET|{CurrentBet}");
             SendMessage($"CHECK_VALUE|{checkValue}");
             SendMessage($"BIG_BLIND|{bigBlindValue}");
-            SendMessage($"EOT");
+            SendMessage("EOT");
         }
 
         public void Send_CurrentFigure()
@@ -355,7 +355,12 @@ namespace CouchPoker_Server
 
         public void Send_WaitingForMoveSignal()
         {
-            SendMessage($"WAITING_FOR_YOUR_MOVE");
+            SendMessage("WAITING_FOR_YOUR_MOVE");
+        }
+
+        public void Send_DisconnectionSignal()
+        {
+            SendMessage($"DISCONNECT");
         }
     }
 }

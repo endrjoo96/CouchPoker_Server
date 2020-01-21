@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:CouchPoker_Server"
         xmlns:Controls="clr-namespace:CouchPoker_Server.Controls" x:Class="CouchPoker_Server.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="449.61" Width="717.491">
+        Title="MainWindow" Height="449.61" Width="717.491" Closing="Window_Closing">
     <Window.Resources>
         <BitmapImage x:Key="Background" UriSource="/CouchPoker_Server;component/Resources/background.jpg"></BitmapImage>
         <BitmapImage x:Key="Table" UriSource="/CouchPoker_Server;component/Resources/table.png"></BitmapImage>

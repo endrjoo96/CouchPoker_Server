@@ -649,6 +649,14 @@ namespace CouchPoker_Server
         {
             dealer.State = DealerHandler.DEALER_STATE.SHOW_POT;
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            foreach(UserHandler u in users)
+            {
+                u.Send_DisconnectionSignal();
+            }
+        }
     }
 
     public enum GAME_MOMENT

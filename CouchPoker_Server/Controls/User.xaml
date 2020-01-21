@@ -13,7 +13,11 @@
                     Height="45" MinWidth="10" Margin="10,0,10,0" HorizontalAlignment="Right" />
             <WrapPanel Margin="0,20,0,0" Grid.ColumnSpan="2">
                 <WrapPanel.Background>
-                    <SolidColorBrush Color="Black" Opacity="0.85"/>
+                    <!--SolidColorBrush Color="Black" Opacity="0.85"/-->
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#DD000000" Offset="0.47" />
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
                 </WrapPanel.Background>
                 <Label Name="Username" Content="Name" MinWidth="90"
                HorizontalAlignment="Left" Margin="-1,-3,0,0"

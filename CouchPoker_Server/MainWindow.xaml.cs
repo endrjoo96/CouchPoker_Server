@@ -16,6 +16,7 @@ namespace CouchPoker_Server
 {
     public partial class MainWindow : Window
     {
+        public static string servername;
         public static Dispatcher dispatcher;
         public static DealerHandler dealer;
         public static List<UserHandler> users;
@@ -33,6 +34,13 @@ namespace CouchPoker_Server
         public MainWindow()
         {
             InitializeComponent();
+
+            SettingsWindow settings = new SettingsWindow();
+            if (settings.ShowDialog() == true)
+            {
+                servername = settings.ServerName;
+            }
+
             dealer = new DealerHandler(Dealer);
             dispatcher = this.Dispatcher;
             usedCards = new List<Card>();
@@ -63,6 +71,8 @@ namespace CouchPoker_Server
             };
             JoiningManagement.Run(users, usersHistory);
             broadcaster = new Broadcaster();
+
+            this.Title = $"{servername} @ {broadcaster.GetIPAddress()}";
 
             gamemode = new TexasHoldEm();
 
@@ -654,7 +664,8 @@ namespace CouchPoker_Server
         {
             foreach(UserHandler u in users)
             {
-                u.Send_DisconnectionSignal();
+                if(u.IsActive)
+                    u.Send_DisconnectionSignal();
             }
         }
     }

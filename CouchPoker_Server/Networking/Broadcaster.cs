@@ -15,19 +15,6 @@ namespace CouchPoker_Server.Networking
         private const int port = 25051;
         public Broadcaster()
         {
-
-            /* 
-             
-static void SendUdp(int srcPort, string dstIp, int dstPort, byte[] data)
-{
-    using (UdpClient c = new UdpClient(srcPort))
-        c.Send(data, data.Length, dstIp, dstPort);
-}
-
-             */
-
-
-
             new Task(() =>
             {
 
@@ -38,7 +25,7 @@ static void SendUdp(int srcPort, string dstIp, int dstPort, byte[] data)
 
                 IPEndPoint broadcastAddress = new IPEndPoint(broadcast, port);
                 UdpClient udpClient = new UdpClient();
-                string broadcastMessage = "CouchPoker_Server|" + "stationartServer1";
+                string broadcastMessage = "CouchPoker_Server|" + MainWindow.servername;
                 byte[] buffer = Encoding.UTF8.GetBytes(broadcastMessage);
                 bool flip = false;
                 while (true)
@@ -60,14 +47,6 @@ static void SendUdp(int srcPort, string dstIp, int dstPort, byte[] data)
                     System.Threading.Thread.Sleep(2000);
                 }
             }).Start();
-            /*
-             
-var addressInt = BitConverter.ToInt32(address.GetAddressBytes(), 0);
-var maskInt = BitConverter.ToInt32(mask.GetAddressBytes(), 0);
-var broadcastInt = addressInt | ~maskInt;
-var broadcast = new IPAddress(BitConverter.GetBytes(broadcastInt));
-
-             */
         }
 
         public void PauseBroadcasting()
@@ -80,7 +59,7 @@ var broadcast = new IPAddress(BitConverter.GetBytes(broadcastInt));
             isServerFull = false;
         }
 
-        private IPAddress GetIPAddress()
+        public IPAddress GetIPAddress()
         {
             IPAddress localAddress;
             using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))

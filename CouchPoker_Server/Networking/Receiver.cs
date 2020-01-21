@@ -61,7 +61,7 @@ namespace CouchPoker_Server.Networking
                             break;
                         }
                         string receivedMessage = Encoding.UTF8.GetString(buffer, 0, data);
-                        DataReceived?.Invoke(new DataReceivedEventArgs(receivedMessage));
+                        DataReceived?.Invoke(new DataReceivedEventArgs(Misc.Security.Decrypt(receivedMessage)));
                     } catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);

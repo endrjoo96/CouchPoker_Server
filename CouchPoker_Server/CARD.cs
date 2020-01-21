@@ -652,6 +652,11 @@ namespace CouchPoker_Server
     {
         public static string path = @"/CouchPoker_Server;component/Resources/Cards";
         public static string reverse = path + "/Red_back.jpg";
+        
+        public static BitmapImage GetReverseImage()
+        {
+            return new BitmapImage(new Uri(reverse, UriKind.Relative));
+        }
 
         public const string
             _2 = "2",

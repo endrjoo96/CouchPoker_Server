@@ -11,6 +11,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Text.RegularExpressions;
+
 
 namespace CouchPoker_Server
 {
@@ -26,6 +28,14 @@ namespace CouchPoker_Server
             get { return Gamemode_ComboBox.Text; }
         }
 
+        public int SmallBlind {
+            get { return Int32.Parse(Small_blind_TextBox.Text); }
+        }
+
+        public int StartupTokens {
+            get { return Int32.Parse(StartupBallance_TextBox.Text); }
+        }
+
         public SettingsWindow()
         {
             InitializeComponent();
@@ -36,7 +46,12 @@ namespace CouchPoker_Server
         private void OK_Button_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
+        }
 
+        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
         }
     }
 }

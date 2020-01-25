@@ -29,8 +29,8 @@ namespace CouchPoker_Server
 
         private IGamemode gamemode;
 
-        int blindValue = 20;
-
+        public static int blindValue = 20;
+        public static int startupTokens = 1000;
         public MainWindow()
         {
             InitializeComponent();
@@ -39,16 +39,19 @@ namespace CouchPoker_Server
             if (settings.ShowDialog() == true)
             {
                 servername = settings.ServerName;
+                blindValue = 2 * settings.SmallBlind;
+                startupTokens = settings.StartupTokens;
             }
+            else System.Windows.Application.Current.Shutdown();
 
             dealer = new DealerHandler(Dealer);
             dispatcher = this.Dispatcher;
             usedCards = new List<Card>();
             usersHistory = new List<UserData>() {
-                new UserData("testUUID_1", "Player1", 10000),
-                new UserData("testUUID_2", "Player2", 10000),
-                new UserData("testUUID_3", "Player3", 10000),
-                new UserData("testUUID_4", "Player4", 10000),
+                new UserData("testUUID_1", "Player1", startupTokens),
+                new UserData("testUUID_2", "Player2", startupTokens),
+                new UserData("testUUID_3", "Player3", startupTokens), 
+                new UserData("testUUID_4", "Player4", startupTokens),
             };
 
             users = new List<UserHandler>()
@@ -159,6 +162,7 @@ namespace CouchPoker_Server
                     do
                     {
                         runGame_break = false;
+                        skipBidd = false;
                         InvokeIfRequired(() => { PrepareBoard(); });
                         activeUsersCount = 0;
                         currentUsers = Dispatcher.Invoke(new Func<List<UserHandler>>(GetActiveUsers));
@@ -264,7 +268,7 @@ namespace CouchPoker_Server
 
                         foreach (var u in users)
                         {
-                            if (u.IsActive) activeUsersCount++;
+                            if (u.IsActive && u.TotalBallance>0) activeUsersCount++;
                         }
                     }
                     while (activeUsersCount >= 2);
@@ -285,6 +289,8 @@ namespace CouchPoker_Server
                 Console.WriteLine(ex.StackTrace);
             }
         }
+
+        bool skipBidd = false;
         private UserHandler Bidd(List<UserHandler> currentUsers)
         {
             int checkValue = 0;
@@ -292,7 +298,7 @@ namespace CouchPoker_Server
             bool begin = false;
             int checkedUsersCount = 0;
             bool exit = false;
-            while (!exit)
+            while (!exit && !skipBidd)
             {
                 foreach (UserHandler u in currentUsers)
                 {
@@ -350,6 +356,7 @@ namespace CouchPoker_Server
 
                         else if (u.Status == STATUS.FOLD ||
                             u.Status == STATUS.NEW_USER ||
+                            u.Status == STATUS.ALL_IN ||
                             !u.IsActive || !u.IsPlaying) continue;
 
                         else if (begin)
@@ -370,6 +377,18 @@ namespace CouchPoker_Server
                                 u.Status = STATUS.MY_TURN;
                             });
                             u.Send_WaitingForMoveSignal();
+
+                            bool amIOnlyActiveUser = true;
+                            foreach (UserHandler usr in GetPlayingUsers())
+                            {
+                                if (!(usr.Status == STATUS.ALL_IN || usr.Status == STATUS.MY_TURN))
+                                {
+                                    amIOnlyActiveUser = false;
+                                    break;
+                                }
+                            }
+                            if (amIOnlyActiveUser) skipBidd = true;
+
                             while (u.Status == STATUS.MY_TURN)
                             {
                                 if (u.IsActive)
@@ -421,6 +440,10 @@ namespace CouchPoker_Server
                                 {
                                     break;
                                 }
+                            }
+                            if (u.TotalBallance == 0)
+                            {
+                                InvokeIfRequired(() => { u.Status = STATUS.ALL_IN; });
                             }
                             int nonFoldedUsers = 0;
                             foreach (var u2 in currentUsers)
@@ -541,17 +564,18 @@ namespace CouchPoker_Server
 
         private UserHandler[] ExecuteRewardCalculation(List<UserHandler> currentUsers)
         {
-            List<UserHandler> users = new List<UserHandler>();
+            List<UserHandler> userList = new List<UserHandler>();
             foreach (UserHandler u in currentUsers)
             {
-                if (u.IsPlaying || u.Status != STATUS.FOLD) users.Add(u);
+                if (u.IsPlaying || u.Status != STATUS.FOLD) userList.Add(u);
             }
-            users.Sort((p, q) => q.CurrentSet.Figure.CompareTo(p.CurrentSet.Figure));
-            List<UserHandler> usersWithConflictingSets = new List<UserHandler>() { users[0] };
+            if(userList.Count>=2) 
+                userList.Sort((p, q) => q.CurrentSet.Figure.CompareTo(p.CurrentSet.Figure));
+            List<UserHandler> usersWithConflictingSets = new List<UserHandler>() { userList[0] };
 
-            for (int i = 1; i < users.Count; i++)
+            for (int i = 1; i < userList.Count; i++)
             {
-                if (users[i].CurrentSet.Figure == users[0].CurrentSet.Figure) usersWithConflictingSets.Add(users[i]);
+                if (userList[i].CurrentSet.Figure == userList[0].CurrentSet.Figure) usersWithConflictingSets.Add(userList[i]);
             }
 
             int iterator = 0;
@@ -610,7 +634,7 @@ namespace CouchPoker_Server
             int currentPlayers = 0;
             foreach (UserHandler usr in users)
             {
-                if (usr.IsActive)
+                if (usr.IsActive && usr.TotalBallance>0)
                 {
                     currentPlayers++;
                 }
@@ -620,15 +644,28 @@ namespace CouchPoker_Server
 
         public static int CountPlayingUsers()
         {
-            int currentPlayers = 0;
+            /*int currentPlayers = 0;
             foreach (UserHandler usr in users)
             {
                 if (usr.IsPlaying)
                 {
                     currentPlayers++;
                 }
+            }*/
+            return GetPlayingUsers().Count;
+        }
+
+        public static List<UserHandler> GetPlayingUsers()
+        {
+            List<UserHandler> playingUsers = new List<UserHandler>();
+            foreach (UserHandler usr in users)
+            {
+                if (usr.IsPlaying && usr.IsActive)
+                {
+                    playingUsers.Add(usr);
+                }
             }
-            return currentPlayers;
+            return playingUsers;
         }
 
         public static void NotEnoughPlayers()

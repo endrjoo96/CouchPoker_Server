@@ -15,7 +15,7 @@ namespace CouchPoker_Server
 {
     public enum STATUS
     {
-        CHECK, RAISE, FOLD, NO_ACTION, NEW_GAME, MY_TURN, ALL_IN, SMALL_BLIND, BIG_BLIND, DEALER, WINNER, NEW_USER
+        CHECK, RAISE, FOLD, NO_ACTION, NEW_GAME, MY_TURN, ALL_IN, SMALL_BLIND, BIG_BLIND, DEALER, WINNER, NEW_USER, BANKRUPT
     }
 
     public class UserHandler
@@ -107,6 +107,7 @@ namespace CouchPoker_Server
             set {
                 user.Total.Content = value.ToString();
                 _userData.ballance = value;
+                if (value == 0) Status = STATUS.BANKRUPT;
             }
         }
         public int CurrentBet {
@@ -126,6 +127,12 @@ namespace CouchPoker_Server
             set {
                 switch (value)
                 {
+                    case STATUS.BANKRUPT:
+                    {
+                        Status = STATUS.FOLD;
+                        user.Action.Content = value;
+                        break;
+                    }
                     case STATUS.FOLD:
                     {
                         ChangeColor(new SolidColorBrush(Colors.Gray));
@@ -135,11 +142,14 @@ namespace CouchPoker_Server
                         CurrentBet = 0;
                         break;
                     }
+                    case STATUS.ALL_IN:
                     case STATUS.RAISE:
                     case STATUS.CHECK:
                     {
                         ChangeColor(new SolidColorBrush(Colors.White));
                         user.Action.Content = value;
+                        IsPlaying = true;
+                        SetCardsVisibility(true);
                         break;
                     }
                     case STATUS.NO_ACTION:

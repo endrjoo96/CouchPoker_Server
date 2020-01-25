@@ -106,7 +106,7 @@ namespace CouchPoker_Server.Networking
                         msg = GetResponseFromRemote(acceptedClient, "SEND_NICKNAME");
                         MainWindow.dispatcher.Invoke(() =>
                         {
-                            user.UserData = new UserData(uid, msg, 10000);
+                            user.UserData = new UserData(uid, msg, MainWindow.startupTokens);
                             user.RemoteClient = acceptedClient;
                             user.IsReconnecting = false;
                             user.Status = STATUS.NEW_USER;

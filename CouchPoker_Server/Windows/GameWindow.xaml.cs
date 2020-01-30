@@ -1,5 +1,4 @@
-﻿using CouchPoker_Server.Gamemodes;
-using CouchPoker_Server.Management;
+﻿using CouchPoker_Server.Management;
 using CouchPoker_Server.Networking;
 using CouchPoker_Server.Player;
 using System;
@@ -26,8 +25,6 @@ namespace CouchPoker_Server
         public Task gameTask;
         public Broadcaster broadcaster;
         private static volatile bool runGame_break = false;
-
-        private IGamemode gamemode;
 
         public static int blindValue = 20;
         public static int startupTokens = 1000;
@@ -75,9 +72,7 @@ namespace CouchPoker_Server
             JoiningManagement.Run(users, usersHistory);
             broadcaster = new Broadcaster();
 
-            this.Title = $"{servername} @ {broadcaster.GetIPAddress()}";
-
-            gamemode = new TexasHoldEm();
+            this.Title = $"This is server: {servername} @ {broadcaster.GetIPAddress()}";
 
             RunGame();
         }
@@ -597,13 +592,6 @@ namespace CouchPoker_Server
                 }
                 iterator++;
             }
-
-            /*
-             TODO:
-             obliczyć konfliktowe figury (wziąć sety z najwyższą kartą w każdej kolejnej iteracji, powtarzać do wyczerpania kart)
-             jeśli skończyły się karty, a dalej jest konflikt, pulę należy podzielić (ZROBIONE)
-             zwrócić tablicę z wygranymi userami, ustawić im STATUS.WINNER
-             */
 
             return usersWithConflictingSets.ToArray();
         }

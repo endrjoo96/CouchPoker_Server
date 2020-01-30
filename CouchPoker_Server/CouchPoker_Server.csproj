@@ -60,8 +60,6 @@
     <Compile Include="Controls\UserCards.xaml.cs">
       <DependentUpon>UserCards.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Gamemodes\IGamemode.cs" />
-    <Compile Include="Gamemodes\TexasHoldEm.cs" />
     <Compile Include="Management\JoiningManagement.cs" />
     <Compile Include="Misc\Security.cs" />
     <Compile Include="Misc\Networking.cs" />
@@ -69,11 +67,11 @@
     <Compile Include="Networking\Broadcaster.cs" />
     <Compile Include="Networking\Receiver.cs" />
     <Compile Include="Networking\Connector.cs" />
-    <Compile Include="Player\CardsOnHand.cs" />
-    <Compile Include="Player\DealerHandler.cs" />
-    <Compile Include="Player\UserData.cs" />
-    <Compile Include="Player\UserHandler.cs" />
-    <Compile Include="SettingsWindow.xaml.cs">
+    <Compile Include="Gameplay\CardsOnHand.cs" />
+    <Compile Include="Gameplay\DealerHandler.cs" />
+    <Compile Include="Gameplay\UserData.cs" />
+    <Compile Include="Gameplay\UserHandler.cs" />
+    <Compile Include="Windows\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Controls\ChoosedCards.xaml">
@@ -92,7 +90,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Windows\GameWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -100,7 +98,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CARD.cs" />
+    <Compile Include="Gameplay\CARD.cs" />
     <Compile Include="Controls\ChoosedCards.xaml.cs">
       <DependentUpon>ChoosedCards.xaml</DependentUpon>
     </Compile>
@@ -110,11 +108,11 @@
     <Compile Include="Controls\User.xaml.cs">
       <DependentUpon>User.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="Windows\GameWindow.xaml.cs">
+      <DependentUpon>GameWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="SettingsWindow.xaml">
+    <Page Include="Windows\SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

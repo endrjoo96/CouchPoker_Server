@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CouchPoker_Server.Resources;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -25,7 +26,7 @@ namespace CouchPoker_Server.Networking
 
                 IPEndPoint broadcastAddress = new IPEndPoint(broadcast, port);
                 UdpClient udpClient = new UdpClient();
-                string broadcastMessage = "CouchPoker_Server|" + MainWindow.servername;
+                string broadcastMessage = KEY_VALUE.BROADCAST_MESSAGE + MainWindow.servername;
                 byte[] buffer = Encoding.UTF8.GetBytes(broadcastMessage);
                 bool flip = false;
                 while (true)

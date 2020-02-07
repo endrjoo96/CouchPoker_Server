@@ -1,6 +1,7 @@
 ﻿using CouchPoker_Server.Management;
 using CouchPoker_Server.Networking;
 using CouchPoker_Server.Player;
+using CouchPoker_Server.Resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -230,11 +231,6 @@ namespace CouchPoker_Server
             {
                 ClearUser();
             });
-
-            /*if (!MainWindow.dispatcher.CheckAccess())
-                MainWindow.dispatcher.Invoke(new Action(ClearUser));
-            else
-                ClearUser();*/
         }
 
         public DataReceivedEventArgs latestArgs;
@@ -250,7 +246,6 @@ namespace CouchPoker_Server
                 });
 
             }
-            Console.WriteLine($"{Username} makes {args.message}");
         }
 
         private void ChangeColor(SolidColorBrush color)
@@ -337,7 +332,7 @@ namespace CouchPoker_Server
         }
         public void Send_StartSignal()
         {
-            SendMessage("STARTED_NEW_ROUND");
+            SendMessage(KEY_VALUE.STARTED_NEW_ROUND);
         }
 
         private void Send_Cards(Card[] cards)
@@ -351,26 +346,26 @@ namespace CouchPoker_Server
 
         public void Send_GameInfo(int checkValue, int bigBlindValue)
         {
-            SendMessage($"YOUR_BALLANCE|{TotalBallance}");
-            SendMessage($"YOUR_BET|{CurrentBet}");
-            SendMessage($"CHECK_VALUE|{checkValue}");
-            SendMessage($"BIG_BLIND|{bigBlindValue}");
-            SendMessage("EOT");
+            SendMessage($"{KEY_VALUE.YOUR_BALANCE}{TotalBallance}");
+            SendMessage($"{KEY_VALUE.YOUR_BET}{CurrentBet}");
+            SendMessage($"{KEY_VALUE.CHECK_VALUE}{checkValue}");
+            SendMessage($"{KEY_VALUE.BIG_BLIND}{bigBlindValue}");
+            SendMessage(KEY_VALUE.END_OF_TRANSMISSION);
         }
 
         public void Send_CurrentFigure()
         {
-            SendMessage($"YOUR_FIGURE|{CurrentSet.Figure}");
+            SendMessage($"{KEY_VALUE.YOUR_FIGURE}{CurrentSet.Figure}");
         }
 
         public void Send_WaitingForMoveSignal()
         {
-            SendMessage("WAITING_FOR_YOUR_MOVE");
+            SendMessage(KEY_VALUE.WAITING_FOR_PLAYER);
         }
 
         public void Send_DisconnectionSignal()
         {
-            SendMessage($"DISCONNECT");
+            SendMessage(KEY_VALUE.DISCONNECTING_SIGNAL);
         }
     }
 }

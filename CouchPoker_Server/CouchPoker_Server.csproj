@@ -71,6 +71,7 @@
     <Compile Include="Gameplay\DealerHandler.cs" />
     <Compile Include="Gameplay\UserData.cs" />
     <Compile Include="Gameplay\UserHandler.cs" />
+    <Compile Include="Resources\KEY_VALUE.cs" />
     <Compile Include="Windows\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>

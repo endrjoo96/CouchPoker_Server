@@ -99,6 +99,7 @@ namespace CouchPoker_Server_UnitTests
             else TestCorrection(cards, set, requiredFigure, currentTest);
         }
     }
+
     [TestClass]
     public class FiguresTests_5cards
     {

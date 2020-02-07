@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CouchPoker_Server.Resources;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -23,12 +24,12 @@ namespace CouchPoker_Server.Networking
         public DataReceivedEventArgs(string message)
         {
             this.message = message;
-            if (message == "FOLD") status = STATUS.FOLD;
-            else if (message == "CHECK") status = STATUS.CHECK;
-            else if (message.Contains("RAISE"))
+            if (message == KEY_VALUE.FOLD) status = STATUS.FOLD;
+            else if (message == KEY_VALUE.CHECK) status = STATUS.CHECK;
+            else if (message.Contains(KEY_VALUE.RAISE))
             {
                 status = STATUS.RAISE;
-                value = Int32.Parse(message.Substring("RAISE".Length));
+                value = Int32.Parse(message.Substring(KEY_VALUE.RAISE.Length));
             }
         }
     }
@@ -39,7 +40,6 @@ namespace CouchPoker_Server.Networking
         public event DataReceivedDelegate DataReceived;
         public delegate void ClientDisconnectedDelegate();
         public event ClientDisconnectedDelegate ClientDisconnected;
-
 
         private Task task;
         public volatile bool IsRunning = false;
@@ -84,7 +84,6 @@ namespace CouchPoker_Server.Networking
 
         public void StopReceiving()
         {
-            //cancellationTokenSource.Cancel();
             IsRunning = false;
         }
     }

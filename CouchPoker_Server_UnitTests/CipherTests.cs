@@ -11,7 +11,7 @@ namespace CouchPoker_Server_UnitTests
     {
         [TestMethod]
         public void EncryptionTest() {
-            string testString = "2|C";
+            string testString = "Text|To|Encrypt123";
             string EncryptedText = Encrypt(testString);
             string DecryptedText = Decrypt(EncryptedText);
             Assert.AreEqual(testString, DecryptedText);
